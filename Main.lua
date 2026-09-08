@@ -91,21 +91,6 @@ Instance.new("UICorner", headerPill).CornerRadius = UDim.new(1, 0)
 local contentContainer = Instance.new("Frame"); contentContainer.Size = UDim2.new(1, 0, 1, 0); contentContainer.BackgroundTransparency = 1; contentContainer.ClipsDescendants = true; contentContainer.Visible = false; contentContainer.Parent = mainFrame
 
 local infoOverlay = Instance.new("Frame"); infoOverlay.Size = UDim2.new(1, 0, 1, 0); infoOverlay.BackgroundColor3 = Color3.fromRGB(15, 15, 20); infoOverlay.BackgroundTransparency = 0.1; infoOverlay.ZIndex = 60; infoOverlay.Visible = false; infoOverlay.Parent = mainFrame
--- [[ GLOBAL BOTTOM-LEFT DISCORD FOOTER ]]
-local globalDiscordLabel = Instance.new("TextLabel")
-globalDiscordLabel.Name = "GlobalDiscordLabel"
-globalDiscordLabel.Size = UDim2.new(0, 200, 0, 16)
-globalDiscordLabel.Position = UDim2.new(0, 10, 1, -18)
-globalDiscordLabel.BackgroundTransparency = 1
-globalDiscordLabel.Font = Enum.Font.SourceSansBold
-globalDiscordLabel.Text = "Report bugs on Discord: lowkeyzenith"
-globalDiscordLabel.TextColor3 = Color3.fromRGB(150, 150, 160)
-globalDiscordLabel.TextTransparency = 0.45
-globalDiscordLabel.TextSize = 10
-globalDiscordLabel.TextXAlignment = Enum.TextXAlignment.Left
-globalDiscordLabel.ZIndex = 20
-globalDiscordLabel.Parent = mainFrame
-
 Instance.new("UICorner", infoOverlay).CornerRadius = UDim.new(0, 16)
 local infoBody = Instance.new("TextLabel"); infoBody.Size = UDim2.new(1, -20, 1, -50); infoBody.Position = UDim2.new(0, 10, 0, 10); infoBody.BackgroundTransparency = 1; infoBody.Font = Enum.Font.SourceSansBold; infoBody.TextWrapped = true; infoBody.TextColor3 = Color3.fromRGB(240, 240, 250); infoBody.TextSize = 13; infoBody.Text = "Information:\n\nTo close the script:\nFirst minimize the menu, then double-tap the circle icon."; infoBody.Parent = infoOverlay
 local btnCloseInfo = Instance.new("TextButton"); btnCloseInfo.Size = UDim2.new(0, 160, 0, 28); btnCloseInfo.Position = UDim2.new(0.5, -80, 1, -38); btnCloseInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 50); btnCloseInfo.BackgroundTransparency = 0.3; btnCloseInfo.Font = Enum.Font.SourceSansBold; btnCloseInfo.Text = "Close this information"; btnCloseInfo.TextColor3 = Color3.fromRGB(255, 255, 255); btnCloseInfo.TextSize = 12; btnCloseInfo.Parent = infoOverlay
