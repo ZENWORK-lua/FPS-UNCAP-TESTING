@@ -706,13 +706,13 @@ task.spawn(function()
     end
 end)
 
-table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
-
-screenGui.Parent = targetGui
-task.spawn(function()
-    applyAppleTween(mainFrame, {Size = UDim2.new(0, 130, 0, 130)}, 0.6); task.wait(0.5); TweenService:Create(introText, TweenInfo.new(0.6), {TextTransparency = 0}):Play(); task.wait(1.5); TweenService:Create(introText, TweenInfo.new(0.4), {TextTransparency = 1}):Play(); task.wait(0.3)
-    applyAppleTween(mainFrame, {Size = UDim2.new(0, 80, 0, 80)}, 0.4); task.wait(0.3); applyAppleTween(mainFrame, {Size = UDim2.new(0, 90, 0, 16)}, 0.5); applyAppleTween(uiCorner, {CornerRadius = UDim.new(0, 8)}, 0.5); task.wait(0.4)
-    TweenService:Create(auraStroke, TweenInfo.new(0.3), {Transparency = 0.65}):Play(); TweenService:Create(headerPill, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play(); introText:Destroy(); task.wait(0.2)
-    applyAppleTween(mainFrame, {Size = UDim2.new(0, 270, 0, 210)}, 0.5); applyAppleTween(uiCorner, {CornerRadius = UDim.new(0, 16)}, 0.5); applyAppleTween(headerPill, {Size = UDim2.new(0, 50, 0, 5), Position = UDim2.new(0.5, 0, 0, 12)}, 0.5); task.wait(0.3)
-    infoOverlay.Visible = true; if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = true end
-end)
+table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() 
+    TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play()
+    TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+    task.delay(0.3, function() 
+        infoOverlay.Visible = false 
+        contentContainer.Visible = true 
+        isIntroPlaying = false 
+    end) 
+end))
