@@ -470,6 +470,7 @@ createInfoLine("Version: 1.5 (testing)", 1)
 createInfoLine("Server ID: " .. tostring(game.JobId ~= "" and game.JobId or "12345"), 2)
 local perfLbl = createInfoLine("Performance Stats: Calculating...", 3)
 createInfoLine("Update Log: new 3 language support, stability fix, bug fix", 4)
+createInfoLine("Report bugs on Discord: lowkeyzenith", 5, Color3.fromRGB(255, 75, 75))
 
 -- 30 Saniyelik Dinamik FPS Yargılama Mantığı
 task.spawn(function()
