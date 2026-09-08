@@ -93,20 +93,11 @@ local contentContainer = Instance.new("Frame"); contentContainer.Size = UDim2.ne
 
 local infoOverlay = Instance.new("Frame"); infoOverlay.Size = UDim2.new(1, 0, 1, 0); infoOverlay.BackgroundColor3 = Color3.fromRGB(15, 15, 20); infoOverlay.BackgroundTransparency = 0.1; infoOverlay.ZIndex = 60; infoOverlay.Visible = false; infoOverlay.Parent = mainFrame
 Instance.new("UICorner", infoOverlay).CornerRadius = UDim.new(0, 16)
-
--- NEW UPDATE BADGE & TITLE
-local updateBadge = Instance.new("TextLabel")
-updateBadge.Size = UDim2.new(0, 80, 0, 18); updateBadge.Position = UDim2.new(0, 10, 0, 8)
-updateBadge.BackgroundColor3 = Color3.fromRGB(0, 162, 255); updateBadge.Font = Enum.Font.GothamBold
-updateBadge.Text = "NEW UPDATE"; updateBadge.TextColor3 = Color3.fromRGB(255, 255, 255); updateBadge.TextSize = 9
-updateBadge.Parent = infoOverlay; Instance.new("UICorner", updateBadge).CornerRadius = UDim.new(0, 4)
-
-local infoBody = Instance.new("TextLabel"); infoBody.Size = UDim2.new(1, -20, 1, -60); infoBody.Position = UDim2.new(0, 10, 0, 30); infoBody.BackgroundTransparency = 1; infoBody.Font = Enum.Font.SourceSansBold; infoBody.TextWrapped = true; infoBody.TextColor3 = Color3.fromRGB(240, 240, 250); infoBody.TextSize = 12
-infoBody.Text = "What's New:\n• Multi-Language Support Added!\n• Deep RAM & Performance Tweaks\n\nTo close: Minimize first, then double-tap the icon."; infoBody.Parent = infoOverlay
+local infoBody = Instance.new("TextLabel"); infoBody.Size = UDim2.new(1, -20, 1, -50); infoBody.Position = UDim2.new(0, 10, 0, 10); infoBody.BackgroundTransparency = 1; infoBody.Font = Enum.Font.SourceSansBold; infoBody.TextWrapped = true; infoBody.TextColor3 = Color3.fromRGB(240, 240, 250); infoBody.TextSize = 13; infoBody.Text = "Information:\n\nTo close the script:\nFirst minimize the menu, then double-tap the circle icon."; infoBody.Parent = infoOverlay
 local btnCloseInfo = Instance.new("TextButton"); btnCloseInfo.Size = UDim2.new(0, 160, 0, 28); btnCloseInfo.Position = UDim2.new(0.5, -80, 1, -38); btnCloseInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 50); btnCloseInfo.BackgroundTransparency = 0.3; btnCloseInfo.Font = Enum.Font.SourceSansBold; btnCloseInfo.Text = "Close this information"; btnCloseInfo.TextColor3 = Color3.fromRGB(255, 255, 255); btnCloseInfo.TextSize = 12; btnCloseInfo.Parent = infoOverlay
 Instance.new("UICorner", btnCloseInfo).CornerRadius = UDim.new(0, 8)
 local infoScale = Instance.new("UIScale", btnCloseInfo); attachScaleHoldAnim(btnCloseInfo, infoScale)
-local mainPage = Instance.new("Frame"); mainPage.Size = UDim2.new(1, 0, 1, 0); mainPage.BackgroundTransparency = 1; mainPage.Parent = contentContainer
+
 local themePage = Instance.new("Frame"); themePage.Size = UDim2.new(1, 0, 1, 0); themePage.BackgroundTransparency = 1; themePage.Visible = false; themePage.Parent = contentContainer
 local settingsPage = Instance.new("Frame"); settingsPage.Size = UDim2.new(1, 0, 1, 0); settingsPage.BackgroundTransparency = 1; settingsPage.Visible = false; settingsPage.Parent = contentContainer
 local confirmPage = Instance.new("Frame"); confirmPage.Size = UDim2.new(1, 0, 1, 0); confirmPage.BackgroundTransparency = 1; confirmPage.Visible = false; confirmPage.Parent = contentContainer
