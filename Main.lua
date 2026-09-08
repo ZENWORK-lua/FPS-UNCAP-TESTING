@@ -7,7 +7,6 @@ local Players = game:GetService("Players")
 local TeleportService = game:GetService("TeleportService")
 local HttpService = game:GetService("HttpService")
 
--- 
 local env = (getgenv and getgenv()) or _G
 local function getSafeGuiParent()
     local p = nil; if gethui then pcall(function() p = gethui() end) end
@@ -67,6 +66,7 @@ local auraStroke = Instance.new("UIStroke"); auraStroke.Color = Color3.fromRGB(0
 local introText = Instance.new("TextLabel")
 introText.Size = UDim2.new(1, 0, 1, 0); introText.BackgroundTransparency = 1; introText.Font = Enum.Font.GothamBold
 introText.Text = "HYPER|FPS"; introText.TextColor3 = Color3.fromRGB(255, 255, 255); introText.TextSize = 17; introText.TextTransparency = 1; introText.ZIndex = 100; introText.Parent = mainFrame
+
 -- [[ EXTERNAL NAVIGATION ]]
 local extBtnClose = Instance.new("TextButton"); extBtnClose.Size = UDim2.new(0, 36, 0, 36); extBtnClose.AnchorPoint = Vector2.new(0.5, 0.5); extBtnClose.Position = UDim2.new(1, 30, 0, 24); extBtnClose.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
 extBtnClose.Text = "×"; extBtnClose.Font = Enum.Font.GothamBold; extBtnClose.TextSize = 22; extBtnClose.TextColor3 = Color3.fromRGB(220, 220, 220); extBtnClose.Visible = false; extBtnClose.Parent = mainFrame
@@ -91,51 +91,22 @@ Instance.new("UICorner", headerPill).CornerRadius = UDim.new(1, 0)
 
 local contentContainer = Instance.new("Frame"); contentContainer.Size = UDim2.new(1, 0, 1, 0); contentContainer.BackgroundTransparency = 1; contentContainer.ClipsDescendants = true; contentContainer.Visible = false; contentContainer.Parent = mainFrame
 
--- [[ HYPER|HUB - INFO & CINEMATIC GREEN LOADER ]]
 local infoOverlay = Instance.new("Frame"); infoOverlay.Size = UDim2.new(1, 0, 1, 0); infoOverlay.BackgroundColor3 = Color3.fromRGB(15, 15, 20); infoOverlay.BackgroundTransparency = 0.1; infoOverlay.ZIndex = 60; infoOverlay.Visible = false; infoOverlay.Parent = mainFrame
 Instance.new("UICorner", infoOverlay).CornerRadius = UDim.new(0, 16)
 
--- NEW UPDATE BADGE
-local updateBadge = Instance.new("Frame")
-updateBadge.Size = UDim2.new(0, 85, 0, 18); updateBadge.Position = UDim2.new(0, 12, 0, 12)
-updateBadge.BackgroundColor3 = Color3.fromRGB(0, 162, 255); updateBadge.ZIndex = 62; updateBadge.Parent = infoOverlay
-Instance.new("UICorner", updateBadge).CornerRadius = UDim.new(0, 5)
+-- NEW UPDATE BADGE & TITLE
+local updateBadge = Instance.new("TextLabel")
+updateBadge.Size = UDim2.new(0, 80, 0, 18); updateBadge.Position = UDim2.new(0, 10, 0, 8)
+updateBadge.BackgroundColor3 = Color3.fromRGB(0, 162, 255); updateBadge.Font = Enum.Font.GothamBold
+updateBadge.Text = "NEW UPDATE"; updateBadge.TextColor3 = Color3.fromRGB(255, 255, 255); updateBadge.TextSize = 9
+updateBadge.Parent = infoOverlay; Instance.new("UICorner", updateBadge).CornerRadius = UDim.new(0, 4)
 
-local badgeText = Instance.new("TextLabel")
-badgeText.Size = UDim2.new(1, 0, 1, 0); badgeText.BackgroundTransparency = 1
-badgeText.Font = Enum.Font.GothamBold; badgeText.Text = "NEW UPDATE"; badgeText.TextColor3 = Color3.fromRGB(255, 255, 255); badgeText.TextSize = 9; badgeText.ZIndex = 63; badgeText.Parent = updateBadge
-
-local infoBody = Instance.new("TextLabel"); infoBody.Size = UDim2.new(1, -24, 1, -60); infoBody.Position = UDim2.new(0, 12, 0, 38); infoBody.BackgroundTransparency = 1; infoBody.Font = Enum.Font.SourceSansBold; infoBody.TextWrapped = true; infoBody.TextColor3 = Color3.fromRGB(240, 240, 250); infoBody.TextSize = 12; infoBody.TextXAlignment = Enum.TextXAlignment.Left; infoBody.ZIndex = 61
-infoBody.Text = "What's New in v1.0:\n• Multi-Language Support Added!\n• Deep RAM & Performance Tweaks\n• Smooth Transition Engine\n\nTo close: Minimize first, then double-tap the icon."; infoBody.Parent = infoOverlay
-
-local btnCloseInfo = Instance.new("TextButton"); btnCloseInfo.Size = UDim2.new(0, 160, 0, 28); btnCloseInfo.Position = UDim2.new(0.5, -80, 1, -36); btnCloseInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 50); btnCloseInfo.BackgroundTransparency = 0.3; btnCloseInfo.Font = Enum.Font.SourceSansBold; btnCloseInfo.Text = "Close information"; btnCloseInfo.TextColor3 = Color3.fromRGB(255, 255, 255); btnCloseInfo.TextSize = 12; btnCloseInfo.ZIndex = 62; btnCloseInfo.Parent = infoOverlay
+local infoBody = Instance.new("TextLabel"); infoBody.Size = UDim2.new(1, -20, 1, -60); infoBody.Position = UDim2.new(0, 10, 0, 30); infoBody.BackgroundTransparency = 1; infoBody.Font = Enum.Font.SourceSansBold; infoBody.TextWrapped = true; infoBody.TextColor3 = Color3.fromRGB(240, 240, 250); infoBody.TextSize = 12
+infoBody.Text = "What's New:\n• Multi-Language Support Added!\n• Deep RAM & Performance Tweaks\n\nTo close: Minimize first, then double-tap the icon."; infoBody.Parent = infoOverlay
+local btnCloseInfo = Instance.new("TextButton"); btnCloseInfo.Size = UDim2.new(0, 160, 0, 28); btnCloseInfo.Position = UDim2.new(0.5, -80, 1, -38); btnCloseInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 50); btnCloseInfo.BackgroundTransparency = 0.3; btnCloseInfo.Font = Enum.Font.SourceSansBold; btnCloseInfo.Text = "Close this information"; btnCloseInfo.TextColor3 = Color3.fromRGB(255, 255, 255); btnCloseInfo.TextSize = 12; btnCloseInfo.Parent = infoOverlay
 Instance.new("UICorner", btnCloseInfo).CornerRadius = UDim.new(0, 8)
 local infoScale = Instance.new("UIScale", btnCloseInfo); attachScaleHoldAnim(btnCloseInfo, infoScale)
-
--- İÇİ BOŞ YEŞİL DÖNME EFEKTİ & LOADING CONTAINER
-local loaderContainer = Instance.new("Frame")
-loaderContainer.Size = UDim2.new(1, 0, 1, 0); loaderContainer.BackgroundTransparency = 1; loaderContainer.ZIndex = 70; loaderContainer.Visible = false; loaderContainer.Parent = mainFrame
-
-local ringFrame = Instance.new("Frame")
-ringFrame.Size = UDim2.new(0, 38, 0, 38); ringFrame.Position = UDim2.new(0.5, 0, 0.42, 0); ringFrame.AnchorPoint = Vector2.new(0.5, 0.5); ringFrame.BackgroundTransparency = 1; ringFrame.ZIndex = 71; ringFrame.Parent = loaderContainer
-
-local ringStroke = Instance.new("UIStroke")
-ringStroke.Color = Color3.fromRGB(46, 204, 113); ringStroke.Thickness = 3; ringStroke.Transparency = 0; ringStroke.Parent = ringFrame
-Instance.new("UICorner", ringFrame).CornerRadius = UDim.new(1, 0)
-
--- İçi boş halkanın dönme efektini göstermesi için kesik Gradient
-local ringGrad = Instance.new("UIGradient")
-ringGrad.Transparency = NumberSequence.new({
-    NumberSequenceKeypoint.new(0, 0),
-    NumberSequenceKeypoint.new(0.5, 0.1),
-    NumberSequenceKeypoint.new(0.8, 0.8),
-    NumberSequenceKeypoint.new(1, 1)
-})
-ringGrad.Parent = ringFrame
-
-local loadText = Instance.new("TextLabel")
-loadText.Size = UDim2.new(1, 0, 0, 20); loadText.Position = UDim2.new(0, 0, 0.42, 28); loadText.BackgroundTransparency = 1; loadText.Font = Enum.Font.GothamMedium; loadText.Text = "Loading..."; loadText.TextColor3 = Color3.fromRGB(220, 220, 230); loadText.TextSize = 12; loadText.ZIndex = 71; loadText.Parent = loaderContainer
-
+local mainPage = Instance.new("Frame"); mainPage.Size = UDim2.new(1, 0, 1, 0); mainPage.BackgroundTransparency = 1; mainPage.Parent = contentContainer
 local themePage = Instance.new("Frame"); themePage.Size = UDim2.new(1, 0, 1, 0); themePage.BackgroundTransparency = 1; themePage.Visible = false; themePage.Parent = contentContainer
 local settingsPage = Instance.new("Frame"); settingsPage.Size = UDim2.new(1, 0, 1, 0); settingsPage.BackgroundTransparency = 1; settingsPage.Visible = false; settingsPage.Parent = contentContainer
 local confirmPage = Instance.new("Frame"); confirmPage.Size = UDim2.new(1, 0, 1, 0); confirmPage.BackgroundTransparency = 1; confirmPage.Visible = false; confirmPage.Parent = contentContainer
@@ -143,7 +114,6 @@ local fadeCurtain = Instance.new("Frame"); fadeCurtain.Size = UDim2.new(1, 0, 1,
 
 local btnTheme = Instance.new("ImageButton"); btnTheme.Size = UDim2.new(0, 20, 0, 20); btnTheme.Position = UDim2.new(1, -60, 0, 18); btnTheme.BackgroundTransparency = 1; btnTheme.Image = "rbxassetid://3926307971"; btnTheme.ImageRectOffset = Vector2.new(764, 244); btnTheme.ImageRectSize = Vector2.new(36, 36); btnTheme.ImageColor3 = Color3.fromRGB(255, 255, 255); btnTheme.ImageTransparency = 0.3; btnTheme.ZIndex = 11; btnTheme.AnchorPoint = Vector2.new(0.5, 0.5); btnTheme.Position = UDim2.new(1, -50, 0, 28); btnTheme.Parent = contentContainer
 local btnSettings = Instance.new("ImageButton"); btnSettings.Size = UDim2.new(0, 20, 0, 20); btnSettings.BackgroundTransparency = 1; btnSettings.Image = "rbxassetid://3926307971"; btnSettings.ImageRectOffset = Vector2.new(324, 124); btnSettings.ImageRectSize = Vector2.new(36, 36); btnSettings.ImageColor3 = Color3.fromRGB(255, 255, 255); btnSettings.ImageTransparency = 0.3; btnSettings.ZIndex = 11; btnSettings.AnchorPoint = Vector2.new(0.5, 0.5); btnSettings.Position = UDim2.new(1, -24, 0, 28); btnSettings.Parent = contentContainer
-
 local titleLabel = Instance.new("TextLabel"); titleLabel.Size = UDim2.new(1, -24, 0, 22); titleLabel.Position = UDim2.new(0, 12, 0, 20); titleLabel.BackgroundTransparency = 1; titleLabel.Font = Enum.Font.SourceSansBold; titleLabel.TextColor3 = Color3.fromRGB(240, 240, 240); titleLabel.TextSize = 15; titleLabel.TextXAlignment = Enum.TextXAlignment.Left; titleLabel.Text = string.format("Target FPS: %d FPS", currentTargetFps); titleLabel.Parent = mainPage
 local effectBarBg = Instance.new("Frame"); effectBarBg.Size = UDim2.new(1, -24, 0, 5); effectBarBg.Position = UDim2.new(0, 12, 0, 66); effectBarBg.BackgroundColor3 = Color3.fromRGB(40, 40, 50); effectBarBg.BackgroundTransparency = 0.3; effectBarBg.BorderSizePixel = 0; effectBarBg.Parent = mainPage; Instance.new("UICorner", effectBarBg).CornerRadius = UDim.new(1, 0)
 local sliderTrack = Instance.new("Frame"); sliderTrack.Size = UDim2.new(1, -24, 0, 6); sliderTrack.Position = UDim2.new(0, 12, 0, 85); sliderTrack.BackgroundColor3 = Color3.fromRGB(45, 45, 55); sliderTrack.BorderSizePixel = 0; sliderTrack.Parent = mainPage; Instance.new("UICorner", sliderTrack).CornerRadius = UDim.new(1, 0)
@@ -320,7 +290,6 @@ local langData = {
         ConfirmPersist = "Сохранить изменения?", Yes = "Да", Nope = "Нет"
     }
 }
--- KUTU AKORDİYON YAPISI (HİÇBİR ŞEYİ KESMEZ)
 local langFrame = Instance.new("Frame")
 langFrame.Size = UDim2.new(1, -8, 0, 30)
 langFrame.BackgroundTransparency = 1
@@ -433,7 +402,6 @@ end
 local isLangOpen = false
 table.insert(connections, langBtn.MouseButton1Click:Connect(function()
     isLangOpen = not isLangOpen
-    -- Ana kutuyu genişleterek alttaki switch'leri aşağı iter
     applyAppleTween(langFrame, {Size = isLangOpen and UDim2.new(1, -8, 0, 138) or UDim2.new(1, -8, 0, 30)}, 0.25)
 end))
 
@@ -582,7 +550,6 @@ bindToggle("Btn3d", "NO RENDER: ON", "NO RENDER: OFF", function(s) is3d = s; pca
 table.insert(connections, btnRejoin.MouseButton1Click:Connect(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Players.LocalPlayer) end))
 local function minimizeMenu() currentState = 1; contentContainer.Visible = false; local cPos = mainFrame.Position; applyAppleTween(mainFrame, {Size = UDim2.new(0, 44, 0, 44), Position = UDim2.new(cPos.X.Scale, cPos.X.Offset, cPos.Y.Scale, cPos.Y.Offset - 83)}); applyAppleTween(uiCorner, {CornerRadius = UDim.new(1, 0)}); applyAppleTween(outerAura, {Size = UDim2.new(1, 4, 1, 4)}); applyAppleTween(headerPillTouch, {Size = UDim2.new(1, 20, 1, 20), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5)}); applyAppleTween(headerPill, {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0.5, 0, 0.5, 0)}); if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = false; applyAppleTween(extBtnClose, {Position = UDim2.new(1, 35, 0.5, 0)}) else extBtnClose.Visible = false; extBtnMin.Visible = false end end
 local function maximizeMenu() currentState = 0; local cPos = mainFrame.Position; applyAppleTween(mainFrame, {Size = UDim2.new(0, 270, 0, 210), Position = UDim2.new(cPos.X.Scale, cPos.X.Offset, cPos.Y.Scale, cPos.Y.Offset + 83)}); applyAppleTween(uiCorner, {CornerRadius = UDim.new(0, 16)}); applyAppleTween(outerAura, {Size = UDim2.new(1, 6, 1, 6)}); applyAppleTween(headerPillTouch, {Size = UDim2.new(0, 150, 0, 32), Position = UDim2.new(0.5, 0, 0, (currentPage == settingsPage and -14 or 0)), AnchorPoint = Vector2.new(0.5, 0)}); applyAppleTween(headerPill, {Size = UDim2.new(0, 50, 0, 5), Position = UDim2.new(0.5, 0, 0, (currentPage == settingsPage and -6 or 12))}); if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = true; applyAppleTween(extBtnClose, {Position = UDim2.new(1, 30, 0, 24)}); applyAppleTween(extBtnMin, {Position = UDim2.new(1, 30, 0, 64)}) end; task.delay(0.1, function() if currentState == 0 then contentContainer.Visible = true end end) end
-
 -- [[ CLOSE ANIM & BUG FIX  ]]
 local function playClosingAnimation(persist)
     env.SYROX_RUNNING = false
@@ -748,58 +715,7 @@ task.spawn(function()
     end
 end)
 
--- [[ 1.5 SANİYELİK AKICI YÜKLEME VE SÜZÜLME ANİMASYONU ]]
-table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function()
-    -- 1. Info Ekranını Gizle
-    TweenService:Create(infoOverlay, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(infoBody, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
-    TweenService:Create(updateBadge, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
-    TweenService:Create(badgeText, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
-    TweenService:Create(btnCloseInfo, TweenInfo.new(0.25), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
-    
-    task.wait(0.25)
-    infoOverlay.Visible = false
-    loaderContainer.Visible = true
-    
-    -- 2. 1.5 Saniyelik Yeşil Daire Dönüşü (Yavaştan Hızlıya, Sonra Yavaşa)
-    local rotValue = Instance.new("NumberValue")
-    rotValue.Value = 0
-    
-    local rotTween = TweenService:Create(rotValue, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Value = 720})
-    local rotConn = rotValue.Changed:Connect(function(val)
-        ringGrad.Rotation = val
-    end)
-    
-    rotTween:Play()
-    
-    -- 1.5 Saniye Bekleme ve "Loaded!" Geçişi
-    task.wait(1.5)
-    rotConn:Disconnect()
-    rotValue:Destroy()
-    
-    loadText.Text = "Loaded!"
-    loadText.TextColor3 = Color3.fromRGB(46, 204, 113)
-    
-    task.wait(0.3) -- Loaded! yazısı kısa bir an görünsün
-    
-    -- 3. Küçülerek Menünün Altına Doğru Süzülme (Fade Out & Slide Down)
-    applyAppleTween(ringFrame, {
-        Size = UDim2.new(0, 0, 0, 0),
-        Position = UDim2.new(0.5, 0, 0.8, 0)
-    }, 0.4)
-    
-    applyAppleTween(loadText, {
-        Position = UDim2.new(0, 0, 0.8, 20),
-        TextTransparency = 1
-    }, 0.4)
-    
-    TweenService:Create(ringStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
-    
-    task.wait(0.35)
-    loaderContainer.Visible = false
-    contentContainer.Visible = true
-    isIntroPlaying = false
-end))
+table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
 
 screenGui.Parent = targetGui
 task.spawn(function()
