@@ -444,10 +444,63 @@ local btnRestartScript = Instance.new("TextButton"); btnRestartScript.Size = UDi
 local scaleRestart = Instance.new("UIScale", btnRestartScript); attachScaleHoldAnim(btnRestartScript, scaleRestart)
 table.insert(connections, btnRestartScript.MouseButton1Click:Connect(function() env.SYROX_RUNNING = false; if screenGui then screenGui:Destroy() end; pcall(function() game:GetService("StarterGui"):SetCore("SendNotification", {Title="HYPERWORK", Text="Restarting script...", Duration=2}) end); task.delay(0.5, function() loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/FPS-UNCAP/refs/heads/main/Main.lua"))() end) end))
 
-local discordFrame = Instance.new("Frame"); discordFrame.Size = UDim2.new(1, -8, 0, 22); discordFrame.BackgroundTransparency = 1; discordFrame.LayoutOrder = 9999; discordFrame.Parent = sysScroll
-local dCenter = Instance.new("Frame", discordFrame); dCenter.Size = UDim2.new(0, 195, 1, 0); dCenter.Position = UDim2.new(0.5, 0, 0, 0); dCenter.AnchorPoint = Vector2.new(0.5, 0); dCenter.BackgroundTransparency = 1
-local dIcon = Instance.new("ImageLabel", dCenter); dIcon.Size = UDim2.new(0, 16, 0, 16); dIcon.Position = UDim2.new(0, 0, 0.5, 0); dIcon.AnchorPoint = Vector2.new(0, 0.5); dIcon.BackgroundTransparency = 1; dIcon.Image = "rbxassetid://14896791845"; dIcon.ImageColor3 = Color3.fromRGB(130, 130, 140)
-local dText = Instance.new("TextLabel", dCenter); dText.Size = UDim2.new(1, -22, 1, 0); dText.Position = UDim2.new(0, 22, 0, 0); dText.BackgroundTransparency = 1; dText.Font = Enum.Font.SourceSansBold; dText.Text = "Report bugs on Discord: lowkeyzenith"; dText.TextColor3 = Color3.fromRGB(130, 130, 140); dText.TextSize = 11; dText.TextXAlignment = Enum.TextXAlignment.Left
+-- [[ SYSTEM INFO & PERFORMANCE PANEL ]]
+local infoCard = Instance.new("Frame")
+infoCard.Size = UDim2.new(1, -8, 0, 95)
+infoCard.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+infoCard.BackgroundTransparency = 0.4
+infoCard.LayoutOrder = 9999
+infoCard.Parent = sysScroll
+Instance.new("UICorner", infoCard).CornerRadius = UDim.new(0, 8)
+
+local cardStroke = Instance.new("UIStroke", infoCard)
+cardStroke.Color = Color3.fromRGB(50, 50, 65)
+cardStroke.Thickness = 1
+cardStroke.Transparency = 0.5
+
+local cardList = Instance.new("UIListLayout", infoCard)
+cardList.Padding = UDim.new(0, 3)
+cardList.SortOrder = Enum.SortOrder.LayoutOrder
+
+local cardPadding = Instance.new("UIPadding", infoCard)
+cardPadding.PaddingLeft = UDim.new(0, 8)
+cardPadding.PaddingTop = UDim.new(0, 6)
+
+local function createInfoLine(text, order)
+    local lbl = Instance.new("TextLabel")
+    lbl.Size = UDim2.new(1, -16, 0, 15)
+    lbl.BackgroundTransparency = 1
+    lbl.Font = Enum.Font.SourceSansBold
+    lbl.Text = text
+    lbl.TextColor3 = Color3.fromRGB(180, 180, 195)
+    lbl.TextSize = 11
+    lbl.TextXAlignment = Enum.TextXAlignment.Left
+    lbl.LayoutOrder = order
+    lbl.Parent = infoCard
+    return lbl
+end
+
+createInfoLine("Version: 1.5 (testing)", 1)
+createInfoLine("Server ID: " .. tostring(game.JobId ~= "" and game.JobId or "12345"), 2)
+local perfLbl = createInfoLine("Performance Stats: Calculating...", 3)
+createInfoLine("Update Log: new 3 language support, stability fix, bug fix", 4)
+
+-- 30 Saniyelik Dinamik FPS Yargılama Mantığı
+task.spawn(function()
+    while env.SYROX_RUNNING do
+        local fpsVal = currentRealFps or 60
+        local rating = "LOW"
+        if fpsVal >= 120 then
+            rating = "SUPER"
+        elseif fpsVal >= 60 then
+            rating = "HIGH"
+        elseif fpsVal >= 30 then
+            rating = "MID"
+        end
+        perfLbl.Text = string.format("Performance Stats: %s (%d FPS)", rating, fpsVal)
+        task.wait(30)
+    end
+end)
 
 local btnAfk, knobAfk = createSwitch("AFK Optimization", featScroll)
 local btnDynRes, knobDynRes = createSwitch("Dynamic Res Scaler (BETA)", featScroll)
