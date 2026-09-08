@@ -91,22 +91,51 @@ Instance.new("UICorner", headerPill).CornerRadius = UDim.new(1, 0)
 
 local contentContainer = Instance.new("Frame"); contentContainer.Size = UDim2.new(1, 0, 1, 0); contentContainer.BackgroundTransparency = 1; contentContainer.ClipsDescendants = true; contentContainer.Visible = false; contentContainer.Parent = mainFrame
 
+-- [[ HYPER|HUB - INFO & CINEMATIC GREEN LOADER ]]
 local infoOverlay = Instance.new("Frame"); infoOverlay.Size = UDim2.new(1, 0, 1, 0); infoOverlay.BackgroundColor3 = Color3.fromRGB(15, 15, 20); infoOverlay.BackgroundTransparency = 0.1; infoOverlay.ZIndex = 60; infoOverlay.Visible = false; infoOverlay.Parent = mainFrame
 Instance.new("UICorner", infoOverlay).CornerRadius = UDim.new(0, 16)
 
--- NEW UPDATE BADGE & TITLE
-local updateBadge = Instance.new("TextLabel")
-updateBadge.Size = UDim2.new(0, 80, 0, 18); updateBadge.Position = UDim2.new(0, 10, 0, 8)
-updateBadge.BackgroundColor3 = Color3.fromRGB(0, 162, 255); updateBadge.Font = Enum.Font.GothamBold
-updateBadge.Text = "NEW UPDATE"; updateBadge.TextColor3 = Color3.fromRGB(255, 255, 255); updateBadge.TextSize = 9
-updateBadge.Parent = infoOverlay; Instance.new("UICorner", updateBadge).CornerRadius = UDim.new(0, 4)
+-- NEW UPDATE BADGE
+local updateBadge = Instance.new("Frame")
+updateBadge.Size = UDim2.new(0, 85, 0, 18); updateBadge.Position = UDim2.new(0, 12, 0, 12)
+updateBadge.BackgroundColor3 = Color3.fromRGB(0, 162, 255); updateBadge.ZIndex = 62; updateBadge.Parent = infoOverlay
+Instance.new("UICorner", updateBadge).CornerRadius = UDim.new(0, 5)
 
-local infoBody = Instance.new("TextLabel"); infoBody.Size = UDim2.new(1, -20, 1, -60); infoBody.Position = UDim2.new(0, 10, 0, 30); infoBody.BackgroundTransparency = 1; infoBody.Font = Enum.Font.SourceSansBold; infoBody.TextWrapped = true; infoBody.TextColor3 = Color3.fromRGB(240, 240, 250); infoBody.TextSize = 12
-infoBody.Text = "What's New:\n• Multi-Language Support Added!\n• Deep RAM & Performance Tweaks\n\nTo close: Minimize first, then double-tap the icon."; infoBody.Parent = infoOverlay
-local btnCloseInfo = Instance.new("TextButton"); btnCloseInfo.Size = UDim2.new(0, 160, 0, 28); btnCloseInfo.Position = UDim2.new(0.5, -80, 1, -38); btnCloseInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 50); btnCloseInfo.BackgroundTransparency = 0.3; btnCloseInfo.Font = Enum.Font.SourceSansBold; btnCloseInfo.Text = "Close this information"; btnCloseInfo.TextColor3 = Color3.fromRGB(255, 255, 255); btnCloseInfo.TextSize = 12; btnCloseInfo.Parent = infoOverlay
+local badgeText = Instance.new("TextLabel")
+badgeText.Size = UDim2.new(1, 0, 1, 0); badgeText.BackgroundTransparency = 1
+badgeText.Font = Enum.Font.GothamBold; badgeText.Text = "NEW UPDATE"; badgeText.TextColor3 = Color3.fromRGB(255, 255, 255); badgeText.TextSize = 9; badgeText.ZIndex = 63; badgeText.Parent = updateBadge
+
+local infoBody = Instance.new("TextLabel"); infoBody.Size = UDim2.new(1, -24, 1, -60); infoBody.Position = UDim2.new(0, 12, 0, 38); infoBody.BackgroundTransparency = 1; infoBody.Font = Enum.Font.SourceSansBold; infoBody.TextWrapped = true; infoBody.TextColor3 = Color3.fromRGB(240, 240, 250); infoBody.TextSize = 12; infoBody.TextXAlignment = Enum.TextXAlignment.Left; infoBody.ZIndex = 61
+infoBody.Text = "What's New in v1.0:\n• Multi-Language Support Added!\n• Deep RAM & Performance Tweaks\n• Smooth Transition Engine\n\nTo close: Minimize first, then double-tap the icon."; infoBody.Parent = infoOverlay
+
+local btnCloseInfo = Instance.new("TextButton"); btnCloseInfo.Size = UDim2.new(0, 160, 0, 28); btnCloseInfo.Position = UDim2.new(0.5, -80, 1, -36); btnCloseInfo.BackgroundColor3 = Color3.fromRGB(40, 40, 50); btnCloseInfo.BackgroundTransparency = 0.3; btnCloseInfo.Font = Enum.Font.SourceSansBold; btnCloseInfo.Text = "Close information"; btnCloseInfo.TextColor3 = Color3.fromRGB(255, 255, 255); btnCloseInfo.TextSize = 12; btnCloseInfo.ZIndex = 62; btnCloseInfo.Parent = infoOverlay
 Instance.new("UICorner", btnCloseInfo).CornerRadius = UDim.new(0, 8)
 local infoScale = Instance.new("UIScale", btnCloseInfo); attachScaleHoldAnim(btnCloseInfo, infoScale)
-local mainPage = Instance.new("Frame"); mainPage.Size = UDim2.new(1, 0, 1, 0); mainPage.BackgroundTransparency = 1; mainPage.Parent = contentContainer
+
+-- İÇİ BOŞ YEŞİL DÖNME EFEKTİ & LOADING CONTAINER
+local loaderContainer = Instance.new("Frame")
+loaderContainer.Size = UDim2.new(1, 0, 1, 0); loaderContainer.BackgroundTransparency = 1; loaderContainer.ZIndex = 70; loaderContainer.Visible = false; loaderContainer.Parent = mainFrame
+
+local ringFrame = Instance.new("Frame")
+ringFrame.Size = UDim2.new(0, 38, 0, 38); ringFrame.Position = UDim2.new(0.5, 0, 0.42, 0); ringFrame.AnchorPoint = Vector2.new(0.5, 0.5); ringFrame.BackgroundTransparency = 1; ringFrame.ZIndex = 71; ringFrame.Parent = loaderContainer
+
+local ringStroke = Instance.new("UIStroke")
+ringStroke.Color = Color3.fromRGB(46, 204, 113); ringStroke.Thickness = 3; ringStroke.Transparency = 0; ringStroke.Parent = ringFrame
+Instance.new("UICorner", ringFrame).CornerRadius = UDim.new(1, 0)
+
+-- İçi boş halkanın dönme efektini göstermesi için kesik Gradient
+local ringGrad = Instance.new("UIGradient")
+ringGrad.Transparency = NumberSequence.new({
+    NumberSequenceKeypoint.new(0, 0),
+    NumberSequenceKeypoint.new(0.5, 0.1),
+    NumberSequenceKeypoint.new(0.8, 0.8),
+    NumberSequenceKeypoint.new(1, 1)
+})
+ringGrad.Parent = ringFrame
+
+local loadText = Instance.new("TextLabel")
+loadText.Size = UDim2.new(1, 0, 0, 20); loadText.Position = UDim2.new(0, 0, 0.42, 28); loadText.BackgroundTransparency = 1; loadText.Font = Enum.Font.GothamMedium; loadText.Text = "Loading..."; loadText.TextColor3 = Color3.fromRGB(220, 220, 230); loadText.TextSize = 12; loadText.ZIndex = 71; loadText.Parent = loaderContainer
+
 local themePage = Instance.new("Frame"); themePage.Size = UDim2.new(1, 0, 1, 0); themePage.BackgroundTransparency = 1; themePage.Visible = false; themePage.Parent = contentContainer
 local settingsPage = Instance.new("Frame"); settingsPage.Size = UDim2.new(1, 0, 1, 0); settingsPage.BackgroundTransparency = 1; settingsPage.Visible = false; settingsPage.Parent = contentContainer
 local confirmPage = Instance.new("Frame"); confirmPage.Size = UDim2.new(1, 0, 1, 0); confirmPage.BackgroundTransparency = 1; confirmPage.Visible = false; confirmPage.Parent = contentContainer
