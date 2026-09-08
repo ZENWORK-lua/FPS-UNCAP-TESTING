@@ -748,7 +748,58 @@ task.spawn(function()
     end
 end)
 
-table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
+-- [[ 1.5 SANİYELİK AKICI YÜKLEME VE SÜZÜLME ANİMASYONU ]]
+table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function()
+    -- 1. Info Ekranını Gizle
+    TweenService:Create(infoOverlay, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(infoBody, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
+    TweenService:Create(updateBadge, TweenInfo.new(0.25), {BackgroundTransparency = 1}):Play()
+    TweenService:Create(badgeText, TweenInfo.new(0.25), {TextTransparency = 1}):Play()
+    TweenService:Create(btnCloseInfo, TweenInfo.new(0.25), {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+    
+    task.wait(0.25)
+    infoOverlay.Visible = false
+    loaderContainer.Visible = true
+    
+    -- 2. 1.5 Saniyelik Yeşil Daire Dönüşü (Yavaştan Hızlıya, Sonra Yavaşa)
+    local rotValue = Instance.new("NumberValue")
+    rotValue.Value = 0
+    
+    local rotTween = TweenService:Create(rotValue, TweenInfo.new(1.5, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {Value = 720})
+    local rotConn = rotValue.Changed:Connect(function(val)
+        ringGrad.Rotation = val
+    end)
+    
+    rotTween:Play()
+    
+    -- 1.5 Saniye Bekleme ve "Loaded!" Geçişi
+    task.wait(1.5)
+    rotConn:Disconnect()
+    rotValue:Destroy()
+    
+    loadText.Text = "Loaded!"
+    loadText.TextColor3 = Color3.fromRGB(46, 204, 113)
+    
+    task.wait(0.3) -- Loaded! yazısı kısa bir an görünsün
+    
+    -- 3. Küçülerek Menünün Altına Doğru Süzülme (Fade Out & Slide Down)
+    applyAppleTween(ringFrame, {
+        Size = UDim2.new(0, 0, 0, 0),
+        Position = UDim2.new(0.5, 0, 0.8, 0)
+    }, 0.4)
+    
+    applyAppleTween(loadText, {
+        Position = UDim2.new(0, 0, 0.8, 20),
+        TextTransparency = 1
+    }, 0.4)
+    
+    TweenService:Create(ringStroke, TweenInfo.new(0.3), {Transparency = 1}):Play()
+    
+    task.wait(0.35)
+    loaderContainer.Visible = false
+    contentContainer.Visible = true
+    isIntroPlaying = false
+end))
 
 screenGui.Parent = targetGui
 task.spawn(function()
