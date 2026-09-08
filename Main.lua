@@ -79,9 +79,10 @@ Instance.new("UICorner", extBtnMin).CornerRadius = UDim.new(1, 0)
 local extMinScale = Instance.new("UIScale", extBtnMin)
 
 local function attachScaleHoldAnim(btn, scaleObj)
-    btn.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then applyAppleTween(scaleObj, {Scale = 1.08}, 0.15) end end)
-    btn.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then applyAppleTween(scaleObj, {Scale = 1}, 0.25) end end)
+    table.insert(connections, btn.InputBegan:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then applyAppleTween(scaleObj, {Scale = 1.08}, 0.15) end end))
+    table.insert(connections, btn.InputEnded:Connect(function(input) if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then applyAppleTween(scaleObj, {Scale = 1}, 0.25) end end))
 end
+
 attachScaleHoldAnim(extBtnClose, extCloseScale); attachScaleHoldAnim(extBtnMin, extMinScale)
 -- [[ UI: HEADER & CONTAINERS ]]
 local headerPillTouch = Instance.new("TextButton"); headerPillTouch.Size = UDim2.new(0, 150, 0, 32); headerPillTouch.Position = UDim2.new(0.5, 0, 0, 0); headerPillTouch.AnchorPoint = Vector2.new(0.5, 0); headerPillTouch.BackgroundTransparency = 1; headerPillTouch.Text = ""; headerPillTouch.ZIndex = 50; headerPillTouch.Parent = mainFrame
