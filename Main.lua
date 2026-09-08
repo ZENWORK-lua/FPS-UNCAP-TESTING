@@ -674,37 +674,8 @@ table.insert(connections, RunService.RenderStepped:Connect(function()
     end
 end))
 
-task.spawn(function()
-    while env.SYROX_RUNNING do
-        task.wait(1)
-        if not isDistCull and not isAnimLim then continue end
-        local lp = Players.LocalPlayer; local char = lp.Character; local root = char and char:FindFirstChild("HumanoidRootPart")
-        if not root then continue end
-        local pos = root.Position; local count = 0
-        for _, v in ipairs(workspace:GetDescendants()) do
-            if isDistCull and v:IsA("BasePart") then
-                local dist = (v.Position - pos).Magnitude
-                if dist > 350 then v.LocalTransparencyModifier = 1
-                elseif dist > 150 then v.LocalTransparencyModifier = 0; v.Material = Enum.Material.SmoothPlastic; v.CastShadow = false
-                else v.LocalTransparencyModifier = 0 end
-            end
-            if isAnimLim and v:IsA("Humanoid") and v.Parent ~= char then
-                local pRoot = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Torso")
-                if pRoot then
-                    local dist = (pRoot.Position - pos).Magnitude
-                    if dist > 150 then v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None; for _, track in ipairs(v:GetPlayingAnimationTracks()) do track:AdjustSpeed(0) end
-                    else v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer; for _, track in ipairs(v:GetPlayingAnimationTracks()) do if track.Speed == 0 then track:AdjustSpeed(1) end end end
-                end
-            end
-            count = count + 1; if count % 200 == 0 then RunService.RenderStepped:Wait() end
-        end
-    end
-end)
-
-table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
-
-screenGui.Parent = targetGui
-tlocal cachedParts, cachedHums = {}, {}
+-- [[ OPTİMİZE EDİLMİŞ DÖNGÜ VE EKRANA YÜKLEME ]]
+local cachedParts, cachedHums = {}, {}
 local function cacheAdd(v) if v:IsA("BasePart") then table.insert(cachedParts, v) elseif v:IsA("Humanoid") then table.insert(cachedHums, v) end end
 for _, v in ipairs(workspace:GetDescendants()) do cacheAdd(v) end
 table.insert(connections, workspace.DescendantAdded:Connect(cacheAdd))
@@ -737,4 +708,15 @@ task.spawn(function()
             end
         end
     end
+end)
+
+table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
+
+screenGui.Parent = targetGui
+task.spawn(function()
+    applyAppleTween(mainFrame, {Size = UDim2.new(0, 130, 0, 130)}, 0.6); task.wait(0.5); TweenService:Create(introText, TweenInfo.new(0.6), {TextTransparency = 0}):Play(); task.wait(1.5); TweenService:Create(introText, TweenInfo.new(0.4), {TextTransparency = 1}):Play(); task.wait(0.3)
+    applyAppleTween(mainFrame, {Size = UDim2.new(0, 80, 0, 80)}, 0.4); task.wait(0.3); applyAppleTween(mainFrame, {Size = UDim2.new(0, 90, 0, 16)}, 0.5); applyAppleTween(uiCorner, {CornerRadius = UDim.new(0, 8)}, 0.5); task.wait(0.4)
+    TweenService:Create(auraStroke, TweenInfo.new(0.3), {Transparency = 0.65}):Play(); TweenService:Create(headerPill, TweenInfo.new(0.3), {BackgroundTransparency = 0}):Play(); introText:Destroy(); task.wait(0.2)
+    applyAppleTween(mainFrame, {Size = UDim2.new(0, 270, 0, 210)}, 0.5); applyAppleTween(uiCorner, {CornerRadius = UDim.new(0, 16)}, 0.5); applyAppleTween(headerPill, {Size = UDim2.new(0, 50, 0, 5), Position = UDim2.new(0.5, 0, 0, 12)}, 0.5); task.wait(0.3)
+    infoOverlay.Visible = true; if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = true end
 end)
