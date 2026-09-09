@@ -1,15 +1,12 @@
--- [[ HYPER|HUB - MAIN LOADER ]] --
-_G.HyperMainStart = false
-
--- Maskot Scriptini Çağırıyoruz
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/Hyper-FPS-3D-Opening/refs/heads/main/Main.lua"))()
-
--- Maskot Platoboost key doğrulamasını yapıp _G.HyperMainStart = true yapana kadar bekler
-repeat task.wait(0.1) until _G.HyperMainStart == true
-
--- (Buradan aşağısı senin orijinal Hyper FPS GUI kodların...)
-
 -- [[ HYPER|HUB - STABLE ]]
+_G.HyperMainStart = false
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/Hyper-FPS-3D-Opening/refs/heads/main/Main.lua"))()
+repeat task.wait() until _G.HyperMainStart == true
+_G.HyperMainStart = nil
+if game:GetService("CoreGui"):FindFirstChild("HyperOpeningUI") then
+    game:GetService("CoreGui").HyperOpeningUI:Destroy()
+end
+
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
