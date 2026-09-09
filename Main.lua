@@ -799,26 +799,92 @@ table.insert(connections, extBtnMin.MouseButton1Click:Connect(minimizeMenu)); ta
 table.insert(connections, btnConfirmNope.MouseButton1Click:Connect(function() if confirmStep == 1 then openPage(mainPage); confirmStep = 0 elseif confirmStep == 2 then playClosingAnimation(false) end end))
 table.insert(connections, btnConfirmYes.MouseButton1Click:Connect(function() if confirmStep == 1 then confirmStep = 2; TweenService:Create(fadeCurtain, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play(); task.delay(0.2, function() confirmTitle.Text = "Do you want the changes to persist?"; TweenService:Create(fadeCurtain, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end) elseif confirmStep == 2 then playClosingAnimation(true) end end))
 
-table.insert(connections, headerPillTouch.InputBegan:Connect(function(input) if isIntroPlaying then return end; if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then draggingPill = true; isDraggingMoved = false; pillDragStart = input.Position; startPos = mainFrame.Position end end))
-table.insert(connections, UserInputService.InputChanged:Connect(function(input)
-    if draggingPill and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - pillDragStart; if math.abs(delta.X) > 10 or math.abs(delta.Y) > 10 then isDraggingMoved = true end 
-        local cam = workspace.CurrentCamera; local viewportSize = cam and cam.ViewportSize or Vector2.new(1920, 1080)
-        local frameSize = mainFrame.AbsoluteSize; local anchor = mainFrame.AnchorPoint
-        local rawX = startPos.X.Offset + delta.X; local rawY = startPos.Y.Offset + delta.Y
-        local minX = (anchor.X * frameSize.X) - (viewportSize.X * 0.5); local maxX = (viewportSize.X * 0.5) - ((1 - anchor.X) * frameSize.X)
-        local minY = (anchor.Y * frameSize.Y) - (viewportSize.Y * 0.5); local maxY = (viewportSize.Y * 0.5) - ((1 - anchor.Y) * frameSize.Y)
-        mainFrame.Position = UDim2.new(startPos.X.Scale, math.clamp(rawX, minX, maxX), startPos.Y.Scale, math.clamp(rawY, minY, maxY))
+-- =======================================================
+-- 360° VEKTÖREL ESNEME VE YAYLANMA SİSTEMİ (HEADERPILLTOUCH)
+-- =======================================================
+local baseSize = 44
+local originalUDim = UDim2.new(0, 44, 0, 44)
+
+local pressTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local dragTweenInfo  = TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
+local releaseTweenInfo = TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+
+local isDraggingPillIcon = false
+local lastPillPos = Vector2.zero
+local lastClickTime = 0
+
+table.insert(connections, headerPillTouch.InputBegan:Connect(function(input)
+    if isIntroPlaying then return end
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        draggingPill = true
+        isDraggingMoved = false
+        isDraggingPillIcon = true
+        
+        pillDragStart = input.Position
+        startPos = mainFrame.Position
+        lastPillPos = Vector2.new(input.Position.X, input.Position.Y)
+
+        -- Sadece Minimize (currentState == 1) Halindeyken Büyüme Esnemesi Yap
+        if currentState == 1 then
+            local targetScaledSize = UDim2.new(0, baseSize * 1.2, 0, baseSize * 1.2)
+            TweenService:Create(mainFrame, pressTweenInfo, {Size = targetScaledSize}):Play()
+        end
     end
 end))
 
-local lastClickTime = 0
+table.insert(connections, UserInputService.InputChanged:Connect(function(input)
+    if draggingPill and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - pillDragStart
+        if math.abs(delta.X) > 10 or math.abs(delta.Y) > 10 then isDraggingMoved = true end 
+        
+        local cam = workspace.CurrentCamera
+        local viewportSize = cam and cam.ViewportSize or Vector2.new(1920, 1080)
+        local frameSize = mainFrame.AbsoluteSize
+        local anchor = mainFrame.AnchorPoint
+        local rawX = startPos.X.Offset + delta.X
+        local rawY = startPos.Y.Offset + delta.Y
+        local minX = (anchor.X * frameSize.X) - (viewportSize.X * 0.5)
+        local maxX = (viewportSize.X * 0.5) - ((1 - anchor.X) * frameSize.X)
+        local minY = (anchor.Y * frameSize.Y) - (viewportSize.Y * 0.5)
+        local maxY = (viewportSize.Y * 0.5) - ((1 - anchor.Y) * frameSize.Y)
+        
+        mainFrame.Position = UDim2.new(startPos.X.Scale, math.clamp(rawX, minX, maxX), startPos.Y.Scale, math.clamp(rawY, minY, maxY))
+
+        -- 360 Derece Vektörel Esneme
+        if currentState == 1 and isDraggingPillIcon then
+            local currentPos = Vector2.new(input.Position.X, input.Position.Y)
+            local dragDelta = currentPos - lastPillPos
+            lastPillPos = currentPos
+            
+            local speed = dragDelta.Magnitude
+            if speed > 1.5 then
+                local stretchFactor = math.clamp(speed * 0.04, 0, 0.45)
+                local dir = dragDelta.Unit
+                local sizeX = (baseSize * 1.2) * (1 + math.abs(dir.X) * stretchFactor)
+                local sizeY = (baseSize * 1.2) * (1 + math.abs(dir.Y) * stretchFactor)
+                
+                TweenService:Create(mainFrame, dragTweenInfo, {
+                    Size = UDim2.new(0, sizeX, 0, sizeY)
+                }):Play()
+            end
+        end
+    end
+end))
+
 table.insert(connections, headerPillTouch.InputEnded:Connect(function(input)
     if draggingPill and (input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch) then
-        draggingPill = false; 
+        draggingPill = false
+        isDraggingPillIcon = false
+
+        -- Bırakılınca Orijinal Yuvarlak Formuna Yaylanarak (Back Easing) Dön
+        if currentState == 1 then
+            TweenService:Create(mainFrame, releaseTweenInfo, {Size = originalUDim}):Play()
+        end
+
         if not isDraggingMoved then
             if isExtNav and currentState == 0 then return end
-            if currentState == 0 then minimizeMenu()
+            if currentState == 0 then 
+                minimizeMenu()
             elseif currentState == 1 then
                 local now = os.clock()
                 if now - lastClickTime < 0.225 then
