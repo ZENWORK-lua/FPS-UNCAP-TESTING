@@ -988,118 +988,149 @@ gradient.Color = ColorSequence.new({
     ColorSequenceKeypoint.new(0, Color3.fromRGB(88, 101, 242)), -- Discord Mavisı
     ColorSequenceKeypoint.new(1, Color3.fromRGB(114, 137, 218)) -- Morumsu Mavi
 })
-gradient.Rotation = 45
-gradient.Parent = discordOverlay
+-- =======================================================
+-- STANDALONE DISCORD OVERLAY & FLOATING PILL SYSTEM
+-- =======================================================
 
--- Üst Kısım: Sürükleme ve Kapatma Kapsülü (Pill)
-local pillBtn = Instance.new("TextButton")
-pillBtn.Name = "PillHandle"
-pillBtn.Size = UDim2.new(0, 60, 0, 10)
-pillBtn.Position = UDim2.new(0.5, -30, 0, -16)
-pillBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-pillBtn.BackgroundTransparency = 0.3
-pillBtn.Text = ""
-pillBtn.AutoButtonColor = false
-pillBtn.Parent = discordOverlay
-Instance.new("UICorner", pillBtn).CornerRadius = UDim.new(1, 0)
+pcall(function()
+    local TweenService = game:GetService("TweenService")
+    local UserInputService = game:GetService("UserInputService")
+    local HttpService = game:GetService("HttpService")
+    local CoreGui = game:GetService("CoreGui")
+    local Players = game:GetService("Players")
 
--- Discord Katıl Butonu
-local joinBtn = Instance.new("TextButton")
-joinBtn.Name = "JoinDiscordBtn"
-joinBtn.Size = UDim2.new(0.85, 0, 0.5, 0)
-joinBtn.Position = UDim2.new(0.075, 0, 0.3, 0)
-joinBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-joinBtn.BackgroundTransparency = 0.2
-joinBtn.Text = "DISCORD SERVER"
-joinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
-joinBtn.Font = Enum.Font.SourceSansBold
-joinBtn.TextSize = 14
-joinBtn.Parent = discordOverlay
-Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 8)
-
--- 1. RAM ŞİŞMEYEN LUA-C++ TWEEN DÖNGÜSÜ (Büyüyüp Küçülme Effect)
-local pulseInfo = TweenInfo.new(
-    0.8,                        -- Süre (sn)
-    Enum.EasingStyle.Sine,      -- Yumuşak geçiş
-    Enum.EasingDirection.InOut, 
-    -1,                         -- Sınırsız Tekrar (-1 RAM şişirmez!)
-    true                        -- Reverses (Büyüyüp geri küçülür)
-)
-
-local pulseTween = TweenService:Create(joinBtn, pulseInfo, {
-    TextSize = 17,
-    TextColor3 = Color3.fromRGB(88, 101, 242)
-})
-pulseTween:Play()
-
--- 2. SÜRÜKLEME VE YANLIŞLIKLA TIKLAMA ENGELLEME
-local dragging = false
-local dragStartPos = nil
-local frameStartPos = nil
-local totalDragDistance = 0
-
-pillBtn.InputBegan:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        dragging = true
-        dragStartPos = input.Position
-        frameStartPos = discordOverlay.Position
-        totalDragDistance = 0
+    -- Gui Parent Tespiti (Hata almaması için dinamik)
+    local targetParent = CoreGui
+    if not pcall(function() local _ = CoreGui.Name end) then
+        targetParent = Players.LocalPlayer:WaitForChild("PlayerGui")
     end
-end)
 
-pillBtn.InputChanged:Connect(function(input)
-    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
-        local delta = input.Position - dragStartPos
-        totalDragDistance = totalDragDistance + delta.Magnitude
-        discordOverlay.Position = UDim2.new(
-            frameStartPos.X.Scale,
-            frameStartPos.X.Offset + delta.X,
-            frameStartPos.Y.Scale,
-            frameStartPos.Y.Offset + delta.Y
-        )
-    end
-end)
+    local discordOverlay = Instance.new("Frame")
+    discordOverlay.Name = "SyroxDiscordOverlay"
+    discordOverlay.Size = UDim2.new(0, 220, 0, 100)
+    discordOverlay.Position = UDim2.new(0.5, -110, 0.15, 0)
+    discordOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    discordOverlay.BorderSizePixel = 0
+    discordOverlay.ClipsDescendants = false
+    discordOverlay.Parent = targetParent
 
-pillBtn.InputEnded:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-        if dragging then
-            dragging = false
-            -- Eğer sürükleme mesafesi 5 pikselden azsa bu bir "Tıklama"dır -> Menüyü kapat
-            if totalDragDistance < 5 then
-                pulseTween:Cancel() -- Belleği serbest bırak
-                discordOverlay:Destroy()
-            end
-        end
-    end
-end)
+    Instance.new("UICorner", discordOverlay).CornerRadius = UDim.new(0, 12)
 
--- 3. DISCORD YÖNLENDİRME (BROWSER & PROXY BYPASS)
-joinBtn.MouseButton1Click:Connect(function()
-    local inviteUrl = "https://discord.gg/KVsveRfEmt"
-    
-    -- Panoya kopyala (Hangi executor olursa olsun)
-    if setclipboard then setclipboard(inviteUrl)
-    elseif toclipboard then toclipboard(inviteUrl) end
-    
-    -- Discord Yerel Yönlendirme Denemesi (Discord App Prompt)
-    pcall(function()
-        local req = (syn and syn.request) or (http and http.request) or http_request or request
-        if req then
-            req({
-                Url = "http://127.0.0.1:6463/rpc?v=1",
-                Method = "POST",
-                Headers = {["Content-Type"] = "application/json", ["Origin"] = "https://discord.com"},
-                Body = HttpService:JSONEncode({
-                    cmd = "INVITE_BROWSER",
-                    args = {code = "KVsveRfEmt"},
-                    nonce = HttpService:GenerateGUID(false)
-                })
-            })
+    -- Arka Plan Gradient
+    local gradient = Instance.new("UIGradient")
+    gradient.Color = ColorSequence.new({
+        ColorSequenceKeypoint.new(0, Color3.fromRGB(88, 101, 242)),
+        ColorSequenceKeypoint.new(1, Color3.fromRGB(114, 137, 218))
+    })
+    gradient.Rotation = 45
+    gradient.Parent = discordOverlay
+
+    -- Kapsül (Pill)
+    local pillBtn = Instance.new("TextButton")
+    pillBtn.Name = "PillHandle"
+    pillBtn.Size = UDim2.new(0, 60, 0, 10)
+    pillBtn.Position = UDim2.new(0.5, -30, 0, -16)
+    pillBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+    pillBtn.BackgroundTransparency = 0.3
+    pillBtn.Text = ""
+    pillBtn.AutoButtonColor = false
+    pillBtn.Parent = discordOverlay
+    Instance.new("UICorner", pillBtn).CornerRadius = UDim.new(1, 0)
+
+    -- Katıl Butonu
+    local joinBtn = Instance.new("TextButton")
+    joinBtn.Name = "JoinDiscordBtn"
+    joinBtn.Size = UDim2.new(0.85, 0, 0.5, 0)
+    joinBtn.Position = UDim2.new(0.075, 0, 0.3, 0)
+    joinBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    joinBtn.BackgroundTransparency = 0.2
+    joinBtn.Text = "DISCORD SERVER"
+    joinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    joinBtn.Font = Enum.Font.SourceSansBold
+    joinBtn.TextSize = 14
+    joinBtn.Parent = discordOverlay
+    Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 8)
+
+    -- RAM Şişmeyen Animasyon
+    local pulseInfo = TweenInfo.new(
+        0.8,
+        Enum.EasingStyle.Sine,
+        Enum.EasingDirection.InOut,
+        -1,
+        true
+    )
+
+    local pulseTween = TweenService:Create(joinBtn, pulseInfo, {
+        TextSize = 17,
+        TextColor3 = Color3.fromRGB(88, 101, 242)
+    })
+    pulseTween:Play()
+
+    -- Sürükleme Mantığı
+    local dragging = false
+    local dragStartPos = nil
+    local frameStartPos = nil
+    local totalDragDistance = 0
+
+    pillBtn.InputBegan:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            dragging = true
+            dragStartPos = input.Position
+            frameStartPos = discordOverlay.Position
+            totalDragDistance = 0
         end
     end)
-    
-    -- Varsayılan tarayıcıda davet linkini açma
-    pcall(function()
-        if openurl then openurl(inviteUrl) end
+
+    pillBtn.InputChanged:Connect(function(input)
+        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+            local delta = input.Position - dragStartPos
+            totalDragDistance = totalDragDistance + delta.Magnitude
+            discordOverlay.Position = UDim2.new(
+                frameStartPos.X.Scale,
+                frameStartPos.X.Offset + delta.X,
+                frameStartPos.Y.Scale,
+                frameStartPos.Y.Offset + delta.Y
+            )
+        end
+    end)
+
+    pillBtn.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+            if dragging then
+                dragging = false
+                if totalDragDistance < 5 then
+                    pulseTween:Cancel()
+                    discordOverlay:Destroy()
+                end
+            end
+        end
+    end)
+
+    -- Tıklama ve Yönlendirme
+    joinBtn.MouseButton1Click:Connect(function()
+        local inviteUrl = "https://discord.gg/KVsveRfEmt"
+        
+        if setclipboard then setclipboard(inviteUrl)
+        elseif toclipboard then toclipboard(inviteUrl) end
+        
+        pcall(function()
+            local req = (syn and syn.request) or (http and http.request) or http_request or request
+            if req then
+                req({
+                    Url = "http://127.0.0.1:6463/rpc?v=1",
+                    Method = "POST",
+                    Headers = {["Content-Type"] = "application/json", ["Origin"] = "https://discord.com"},
+                    Body = HttpService:JSONEncode({
+                        cmd = "INVITE_BROWSER",
+                        args = {code = "KVsveRfEmt"},
+                        nonce = HttpService:GenerateGUID(false)
+                    })
+                })
+            end
+        end)
+        
+        pcall(function()
+            if openurl then openurl(inviteUrl) end
+        end)
     end)
 end)
