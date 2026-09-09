@@ -445,6 +445,17 @@ end
 for _, l in ipairs(languages) do
     if l.Code == currentLang then langBtn.Text = l.Name end
 end
+    if confirmTitle then
+        if confirmStep == 1 then confirmTitle.Text = t.ConfirmClose
+        elseif confirmStep == 2 then confirmTitle.Text = t.ConfirmPersist end
+    end
+    if afkText then 
+        afkText.Text = (code == "TR") and "AFK optimizasyonu aktif.\nDurdurmak için tıklayın" or "AFK optimization activated.\nClick anywhere to stop" 
+    end
+    if lightLabel then
+        lightLabel.Text = (code == "TR") and "Aydınlatma Motoru:" or (code == "RU") and "Освещение:" or (code == "ES") and "Motor de Luz:" or "Lighting Engine:"
+end
+
 updateLanguageUI(currentLang)
 local btnRemember, knobRemember = createSwitch("Remember Changes", sysScroll)
 local btnMaxFps, knobMaxFps = createSwitch("Remove 500 FPS Limit", sysScroll)
