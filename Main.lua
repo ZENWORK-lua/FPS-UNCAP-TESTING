@@ -963,7 +963,7 @@ task.spawn(function()
     infoOverlay.Visible = true; if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = true end
 end)
 -- =======================================================
--- FIXED STANDALONE DISCORD OVERLAY SYSTEM
+-- HYPER FPS STYLE DISCORD OVERLAY (RIGTH-ALIGNED)
 -- =======================================================
 
 task.spawn(function()
@@ -973,7 +973,7 @@ task.spawn(function()
     local CoreGui = game:GetService("CoreGui")
     local Players = game:GetService("Players")
 
-    -- 1. Bağımsız ScreenGui Oluşturma (Gerekli Köp Düzeltmesi)
+    -- 1. ScreenGui Kurulumu
     local overlayGui = Instance.new("ScreenGui")
     overlayGui.Name = "SyroxDiscordOverlayGui"
     overlayGui.ResetOnSpawn = false
@@ -983,34 +983,35 @@ task.spawn(function()
         overlayGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
     end
 
-    -- 2. Ana Kart (Frame)
+    -- 2. Ana Kart (Hyper FPS Konturlu & Yarı Saydam Tasarım)
     local discordOverlay = Instance.new("Frame")
     discordOverlay.Name = "SyroxDiscordOverlay"
-    discordOverlay.Size = UDim2.new(0, 220, 0, 100)
-    discordOverlay.Position = UDim2.new(0.5, -110, 0.15, 0)
-    discordOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+    discordOverlay.Size = UDim2.new(0, 210, 0, 110)
+    -- Ekranın Sağ Tarafında Hizalama (Ana menü ile çakışmaz)
+    discordOverlay.Position = UDim2.new(1, -230, 0.35, 0)
+    discordOverlay.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    discordOverlay.BackgroundTransparency = 0.25
     discordOverlay.BorderSizePixel = 0
     discordOverlay.ClipsDescendants = false
     discordOverlay.Parent = overlayGui
 
-    Instance.new("UICorner", discordOverlay).CornerRadius = UDim.new(0, 12)
+    Instance.new("UICorner", discordOverlay).CornerRadius = UDim.new(0, 10)
 
-    -- Mavi-Mor Arka Plan Gradient
-    local gradient = Instance.new("UIGradient")
-    gradient.Color = ColorSequence.new({
-        ColorSequenceKeypoint.new(0, Color3.fromRGB(88, 101, 242)),
-        ColorSequenceKeypoint.new(1, Color3.fromRGB(114, 137, 218))
-    })
-    gradient.Rotation = 45
-    gradient.Parent = discordOverlay
+    -- Hyper FPS Tarzı Neon / Modern Kontur (UIStroke)
+    local frameStroke = Instance.new("UIStroke")
+    frameStroke.Color = Color3.fromRGB(88, 101, 242)
+    frameStroke.Transparency = 0.4
+    frameStroke.Thickness = 1.2
+    frameStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    frameStroke.Parent = discordOverlay
 
-    -- Kapsül (Pill) - Sürükleme ve Kapatma Butonu
+    -- İç Kapsül (Pill) - Menünün İÇ En Üstünde
     local pillBtn = Instance.new("TextButton")
     pillBtn.Name = "PillHandle"
-    pillBtn.Size = UDim2.new(0, 60, 0, 12)
-    pillBtn.Position = UDim2.new(0.5, -30, 0, -16)
-    pillBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-    pillBtn.BackgroundTransparency = 0.3
+    pillBtn.Size = UDim2.new(0, 50, 0, 6)
+    pillBtn.Position = UDim2.new(0.5, -25, 0, 8)
+    pillBtn.BackgroundColor3 = Color3.fromRGB(200, 200, 220)
+    pillBtn.BackgroundTransparency = 0.4
     pillBtn.Text = ""
     pillBtn.AutoButtonColor = false
     pillBtn.Parent = discordOverlay
@@ -1019,33 +1020,42 @@ task.spawn(function()
     -- Discord Katıl Butonu
     local joinBtn = Instance.new("TextButton")
     joinBtn.Name = "JoinDiscordBtn"
-    joinBtn.Size = UDim2.new(0.85, 0, 0.5, 0)
-    joinBtn.Position = UDim2.new(0.075, 0, 0.3, 0)
-    joinBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+    joinBtn.Size = UDim2.new(0.85, 0, 0.45, 0)
+    joinBtn.Position = UDim2.new(0.075, 0, 0.4, 0)
+    joinBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
     joinBtn.BackgroundTransparency = 0.2
     joinBtn.Text = "DISCORD SERVER"
     joinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
     joinBtn.Font = Enum.Font.SourceSansBold
-    joinBtn.TextSize = 14
+    joinBtn.TextSize = 13
     joinBtn.Parent = discordOverlay
-    Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 8)
+    Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 6)
 
-    -- RAM Şişmeyen C++ Seviyesinde Animasyon
+    local btnStroke = Instance.new("UIStroke")
+    btnStroke.Color = Color3.fromRGB(255, 255, 255)
+    btnStroke.Transparency = 0.8
+    btnStroke.Thickness = 1
+    btnStroke.Parent = joinBtn
+
+    -- RAM Şişmeyen C++ Animasyonu
     local pulseInfo = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
     local pulseTween = TweenService:Create(joinBtn, pulseInfo, {
-        TextSize = 16,
-        TextColor3 = Color3.fromRGB(88, 101, 242)
+        TextSize = 15,
+        BackgroundTransparency = 0.0
     })
     pulseTween:Play()
 
-    -- Dokunmatik / Mouse Sürükleme Mantığı (Mobile Safe)
+    -- 3. Sürükleme ve 150ms Tıklama Filtresi
     local dragging = false
     local dragStart, startPos
+    local pressStartTime = 0
     local hasMoved = false
 
     local function updateInput(input)
         local delta = input.Position - dragStart
-        if delta.Magnitude > 6 then hasMoved = true end
+        if delta.Magnitude > 5 then
+            hasMoved = true
+        end
         discordOverlay.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
     end
 
@@ -1053,13 +1063,17 @@ task.spawn(function()
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             hasMoved = false
+            pressStartTime = os.clock()
             dragStart = input.Position
             startPos = discordOverlay.Position
 
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
-                    if not hasMoved then
+                    local duration = (os.clock() - pressStartTime) * 1000 -- Milisaniye
+                    
+                    -- EĞER 150ms'den kısa sürdüyse ve parmak kaymadıysa -> SİL / KAPAT
+                    if duration <= 150 and not hasMoved then
                         pulseTween:Cancel()
                         overlayGui:Destroy()
                     end
@@ -1074,7 +1088,7 @@ task.spawn(function()
         end
     end)
 
-    -- Discord Link & Yönlendirme
+    -- 4. Discord Link & Yönlendirme
     joinBtn.MouseButton1Click:Connect(function()
         local inviteUrl = "https://discord.gg/KVsveRfEmt"
         
@@ -1102,3 +1116,5 @@ task.spawn(function()
         end)
     end)
 end)
+
+
