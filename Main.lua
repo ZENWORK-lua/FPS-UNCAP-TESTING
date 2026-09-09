@@ -768,33 +768,36 @@ table.insert(connections, RunService.RenderStepped:Connect(function()
     end
 end))
 
-local partCache = {}
-local humCache = {}
-
--- Yeni eklenenleri otomatik önbelleğe al
-workspace.DescendantAdded:Connect(function(v)
-    pcall(function()
-        if v:IsA("BasePart") then table.insert(partCache, v)
-        elseif v:IsA("Humanoid") then table.insert(humCache, v) end
-    end)
-end)
-
--- Asenkron Önbellekleme ve Culling Motoru
 task.spawn(function()
-    -- 1. Çökmeyi Engelleyen Asenkron Harita Taraması
-    local count = 0
-    for _, v in ipairs(workspace:GetDescendants()) do
+    -- Her şeyi spawn içine aldık ki ana menüyü asla etkilemesin
+    local partCache = {}
+    local humCache = {}
+    local connection
+
+    -- Yeni eklenenleri otomatik önbelleğe al (Hata korumalı)
+    connection = workspace.DescendantAdded:Connect(function(v)
         pcall(function()
             if v:IsA("BasePart") then table.insert(partCache, v)
             elseif v:IsA("Humanoid") then table.insert(humCache, v) end
         end)
-        count = count + 1
-        if count % 500 == 0 then task.wait() end -- Kritik: Her 500 objede bir motoru rahatlatır, çökmesini (freeze) %100 engeller.
+    end)
+
+    -- Haritayı YAVAŞÇA önbelleğe alıyoruz (Çökmeyi tam önler)
+    local allObjects = workspace:GetDescendants()
+    for i = 1, #allObjects do
+        pcall(function()
+            local v = allObjects[i]
+            if v:IsA("BasePart") then table.insert(partCache, v)
+            elseif v:IsA("Humanoid") then table.insert(humCache, v) end
+        end)
+        -- Her 1000 objede bir motoru dinlendir, cihazın nefes almasını sağlar
+        if i % 1000 == 0 then task.wait() end 
     end
 
-    -- 2. Ana Mesafe İşleme (Culling) Döngüsü
+    -- Asıl Optimizasyon Döngüsü
     while env.SYROX_RUNNING do
-        task.wait(1.5)
+        task.wait(2) -- Cihazı yormamak için 2 saniyede bir tarayacak
+        
         if not isDistCull and not isAnimLim then continue end
         
         local lp = Players.LocalPlayer
@@ -804,20 +807,50 @@ task.spawn(function()
         local pos = root.Position
         
         if isDistCull then
-            -- Döngüyü tersten kuruyoruz ki silinen objeleri tablodan güvenle atabilelim (Memory Leak önlemi)
+            -- RAM sızıntısını önlemek için tersten tarama
             for i = #partCache, 1, -1 do
                 local v = partCache[i]
                 if not v or not v.Parent then
-                    table.remove(partCache, i) -- Obje haritadan silinmişse RAM'den (tablodan) de sil
+                    table.remove(partCache, i) -- Silinen objeyi RAM'den temizle
                 else
-                    local dist = (v.Position - pos).Magnitude
-                    if dist > 350 then v.LocalTransparencyModifier = 1
-                    elseif dist > 150 then v.LocalTransparencyModifier = 0; v.Material = Enum.Material.SmoothPlastic; v.CastShadow = false
-                    else v.LocalTransparencyModifier = 0 end
+                    pcall(function() -- Pozisyonu olmayan tuhaf parçalar döngüyü kırmasın
+                        local dist = (v.Position - pos).Magnitude
+                        if dist > 350 then v.LocalTransparencyModifier = 1
+                        elseif dist > 150 then v.LocalTransparencyModifier = 0; v.Material = Enum.Material.SmoothPlastic; v.CastShadow = false
+                        else v.LocalTransparencyModifier = 0 end
+                    end)
                 end
             end
         end
         
+        if isAnimLim then
+            for i = #humCache, 1, -1 do
+                local v = humCache[i]
+                if not v or not v.Parent then
+                    table.remove(humCache, i)
+                elseif v.Parent ~= char then
+                    pcall(function()
+                        local pRoot = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Torso")
+                        if pRoot then
+                            local dist = (pRoot.Position - pos).Magnitude
+                            if dist > 150 then 
+                                v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+                                for _, track in ipairs(v:GetPlayingAnimationTracks()) do track:AdjustSpeed(0) end
+                            else 
+                                v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+                                for _, track in ipairs(v:GetPlayingAnimationTracks()) do if track.Speed == 0 then track:AdjustSpeed(1) end end 
+                            end
+                        end
+                    end)
+                end
+            end
+        end
+    end
+    
+    -- Script tamamen kapatıldığında DescendantAdded event'ini de temizle
+    if connection then connection:Disconnect() end
+end)
+    
         if isAnimLim then
             for i = #humCache, 1, -1 do
                 local v = humCache[i]
