@@ -576,6 +576,7 @@ local themeScroll = Instance.new("ScrollingFrame"); themeScroll.Size = UDim2.new
 local themeGrid = Instance.new("UIGridLayout"); themeGrid.CellSize = UDim2.new(0, 110, 0, 32); themeGrid.CellPadding = UDim2.new(0, 8, 0, 8); themeGrid.Parent = themeScroll
 
 local themes = {
+    -- [[ ANA TEMALAR ]]
     {Name = "Aura(default)", Accent = Color3.fromRGB(0, 162, 255), Bg1 = Color3.fromRGB(45, 45, 52), Bg2 = Color3.fromRGB(10, 10, 15)},
     {Name = "bloody", Accent = Color3.fromRGB(255, 40, 60), Bg1 = Color3.fromRGB(50, 20, 25), Bg2 = Color3.fromRGB(15, 5, 5)},
     {Name = "Gold Sun", Accent = Color3.fromRGB(255, 200, 30), Bg1 = Color3.fromRGB(50, 45, 30), Bg2 = Color3.fromRGB(15, 12, 5)},
@@ -583,8 +584,21 @@ local themes = {
     {Name = "Aubergine", Accent = Color3.fromRGB(180, 50, 255), Bg1 = Color3.fromRGB(35, 20, 45), Bg2 = Color3.fromRGB(10, 5, 15)},
     {Name = "Volcano", Accent = Color3.fromRGB(255, 100, 0), Bg1 = Color3.fromRGB(50, 25, 10), Bg2 = Color3.fromRGB(15, 5, 0)},
     {Name = "Ghosts", Accent = Color3.fromRGB(230, 230, 240), Bg1 = Color3.fromRGB(60, 60, 65), Bg2 = Color3.fromRGB(25, 25, 30)},
-    {Name = "Slimey", Accent = Color3.fromRGB(150, 255, 0), Bg1 = Color3.fromRGB(30, 40, 20), Bg2 = Color3.fromRGB(10, 15, 5)}
+    {Name = "Slimey", Accent = Color3.fromRGB(150, 255, 0), Bg1 = Color3.fromRGB(30, 40, 20), Bg2 = Color3.fromRGB(10, 15, 5)},
+
+    -- [[ PREMIUM TEMALAR ]]
+    {Name = "Cyberpunk", Accent = Color3.fromRGB(255, 0, 128), Bg1 = Color3.fromRGB(35, 10, 45), Bg2 = Color3.fromRGB(10, 5, 25)},
+    {Name = "OLED Pure", Accent = Color3.fromRGB(255, 255, 255), Bg1 = Color3.fromRGB(0, 0, 0), Bg2 = Color3.fromRGB(0, 0, 0)},
+    {Name = "Midnight", Accent = Color3.fromRGB(0, 191, 255), Bg1 = Color3.fromRGB(15, 25, 50), Bg2 = Color3.fromRGB(5, 10, 25)},
+    {Name = "Rose Gold", Accent = Color3.fromRGB(255, 182, 193), Bg1 = Color3.fromRGB(45, 25, 35), Bg2 = Color3.fromRGB(20, 10, 15)},
+    {Name = "Deep Teal", Accent = Color3.fromRGB(0, 238, 202), Bg1 = Color3.fromRGB(10, 40, 45), Bg2 = Color3.fromRGB(5, 15, 20)},
+    {Name = "Paper White", Accent = Color3.fromRGB(0, 0, 0), Bg1 = Color3.fromRGB(255, 255, 255), Bg2 = Color3.fromRGB(240, 240, 245)},
+
+    -- [[ SPECIAL THEMES ]]
+    {Name = "Hacker", Accent = Color3.fromRGB(57, 255, 20), Bg1 = Color3.fromRGB(0, 0, 0), Bg2 = Color3.fromRGB(0, 0, 0), SpecialImg = "rbxassetid://6810230230"},
+    {Name = "Darkhole", Accent = Color3.fromRGB(255, 120, 0), Bg1 = Color3.fromRGB(0, 0, 0), Bg2 = Color3.fromRGB(0, 0, 0), SpecialImg = "rbxassetid://6034173873"}
 }
+    
 local confirmTitle = Instance.new("TextLabel"); confirmTitle.Size = UDim2.new(1, -24, 0, 45); confirmTitle.Position = UDim2.new(0, 12, 0, 40); confirmTitle.BackgroundTransparency = 1; confirmTitle.Font = Enum.Font.SourceSansBold; confirmTitle.TextWrapped = true; confirmTitle.TextColor3 = Color3.fromRGB(255, 255, 255); confirmTitle.TextSize = 15; confirmTitle.TextXAlignment = Enum.TextXAlignment.Center; confirmTitle.Text = "Do you want to close the script?"; confirmTitle.Parent = confirmPage
 local btnConfirmYes = Instance.new("TextButton"); btnConfirmYes.Size = UDim2.new(0, 100, 0, 32); btnConfirmYes.Position = UDim2.new(0.5, -110, 0, 115); btnConfirmYes.BackgroundColor3 = Color3.fromRGB(46, 204, 113); btnConfirmYes.Font = Enum.Font.SourceSansBold; btnConfirmYes.Text = "Yes"; btnConfirmYes.TextColor3 = Color3.fromRGB(255, 255, 255); btnConfirmYes.TextSize = 14; btnConfirmYes.Parent = confirmPage; Instance.new("UICorner", btnConfirmYes).CornerRadius = UDim.new(0, 8)
 local btnConfirmNope = Instance.new("TextButton"); btnConfirmNope.Size = UDim2.new(0, 100, 0, 32); btnConfirmNope.Position = UDim2.new(0.5, 10, 0, 115); btnConfirmNope.BackgroundColor3 = Color3.fromRGB(231, 76, 60); btnConfirmNope.Font = Enum.Font.SourceSansBold; btnConfirmNope.Text = "Nope"; btnConfirmNope.TextColor3 = Color3.fromRGB(255, 255, 255); btnConfirmNope.TextSize = 14; btnConfirmNope.Parent = confirmPage; Instance.new("UICorner", btnConfirmNope).CornerRadius = UDim.new(0, 8)
@@ -621,15 +635,82 @@ local function tweenGradient(grad, c1, c2, duration)
     tw.Completed:Connect(function() c:Disconnect(); val:Destroy() end)
 end
 
-for _, td in ipairs(themes) do
-    local tb = Instance.new("TextButton"); tb.Size = UDim2.new(0, 110, 0, 32); tb.BackgroundColor3 = Color3.fromRGB(30, 30, 40); tb.BackgroundTransparency = 0.4; tb.Font = Enum.Font.GothamMedium; tb.Text = td.Name; tb.TextColor3 = td.Accent; tb.TextSize = 13; tb.Parent = themeScroll; Instance.new("UICorner", tb).CornerRadius = UDim.new(0, 8)
-    local s = Instance.new("UIStroke", tb); s.Color = td.Accent; s.Transparency = 0.5; s.Thickness = 1
-    local tsc = Instance.new("UIScale", tb); attachScaleHoldAnim(tb, tsc)
-    table.insert(connections, tb.MouseButton1Click:Connect(function() globalAccentColor = td.Accent; tweenGradient(bgGradient, td.Bg1, td.Bg2, 0.6); applyAppleTween(auraStroke, {Color = td.Accent}, 0.6); applyAppleTween(effectBarGlow, {BackgroundColor3 = td.Accent}, 0.6); applyAppleTween(sliderFill, {BackgroundColor3 = td.Accent}, 0.6); applyAppleTween(segmentSlider, {BackgroundColor3 = td.Accent}, 0.6); applyAppleTween(stabTitle, {TextColor3 = td.Accent}, 0.6); applyAppleTween(fpsMonFrame.UIStroke, {Color = td.Accent}, 0.6)
-        for _, m in pairs(activeModules) do if m.IsActive then applyAppleTween(m.Btn, {TextColor3 = td.Accent}, 0.6); applyAppleTween(m.Stroke, {Color = td.Accent}, 0.6) end end
-        for _, sw in pairs(switchRegistry) do if sw.State then applyAppleTween(sw.Btn, {BackgroundColor3 = td.Accent}, 0.6) end end
+local bgImage = mainFrame:FindFirstChild("SpecialBgImage") or Instance.new("ImageLabel")
+bgImage.Name = "SpecialBgImage"
+bgImage.Size = UDim2.new(1, 0, 1, 0)
+bgImage.BackgroundTransparency = 1
+bgImage.ImageTransparency = 1
+bgImage.ScaleType = Enum.ScaleType.Crop
+bgImage.ZIndex = 0
+bgImage.Parent = mainFrame
+
+local hasSpecialHeaderBeenAdded = false
+
+for i, td in ipairs(themes) do
+    if td.Name == "Hacker" and not hasSpecialHeaderBeenAdded then
+        hasSpecialHeaderBeenAdded = true
+        local specialHeader = Instance.new("TextLabel")
+        specialHeader.Size = UDim2.new(1, 0, 0, 24)
+        specialHeader.BackgroundTransparency = 1
+        specialHeader.Font = Enum.Font.SourceSansBold
+        specialHeader.Text = "-- SPECIAL THEMES --"
+        specialHeader.TextColor3 = Color3.fromRGB(255, 215, 0)
+        specialHeader.TextSize = 12
+        specialHeader.TextXAlignment = Enum.TextXAlignment.Center
+        specialHeader.LayoutOrder = i
+        specialHeader.Parent = themeScroll
+    end
+
+    local tb = Instance.new("TextButton")
+    tb.Size = UDim2.new(0, 110, 0, 32)
+    tb.BackgroundColor3 = Color3.fromRGB(30, 30, 40)
+    tb.BackgroundTransparency = 0.4
+    tb.Font = Enum.Font.GothamMedium
+    tb.Text = td.Name
+    tb.TextColor3 = td.Accent
+    tb.TextSize = 13
+    tb.LayoutOrder = i + 1
+    tb.Parent = themeScroll
+    Instance.new("UICorner", tb).CornerRadius = UDim.new(0, 8)
+    
+    local s = Instance.new("UIStroke", tb)
+    s.Color = td.Accent
+    s.Transparency = 0.5
+    s.Thickness = 1
+    local tsc = Instance.new("UIScale", tb)
+    attachScaleHoldAnim(tb, tsc)
+
+    table.insert(connections, tb.MouseButton1Click:Connect(function()
+        globalAccentColor = td.Accent
+        tweenGradient(bgGradient, td.Bg1, td.Bg2, 0.6)
+        applyAppleTween(auraStroke, {Color = td.Accent}, 0.6)
+        applyAppleTween(effectBarGlow, {BackgroundColor3 = td.Accent}, 0.6)
+        applyAppleTween(sliderFill, {BackgroundColor3 = td.Accent}, 0.6)
+        applyAppleTween(segmentSlider, {BackgroundColor3 = td.Accent}, 0.6)
+        applyAppleTween(stabTitle, {TextColor3 = td.Accent}, 0.6)
+        applyAppleTween(fpsMonFrame.UIStroke, {Color = td.Accent}, 0.6)
+
+        if td.SpecialImg then
+            bgImage.Image = td.SpecialImg
+            applyAppleTween(bgImage, {ImageTransparency = 0.75}, 0.6)
+        else
+            applyAppleTween(bgImage, {ImageTransparency = 1}, 0.6)
+        end
+
+        for _, m in pairs(activeModules) do 
+            if m.IsActive then 
+                applyAppleTween(m.Btn, {TextColor3 = td.Accent}, 0.6)
+                applyAppleTween(m.Stroke, {Color = td.Accent}, 0.6) 
+            end 
+        end
+        for _, sw in pairs(switchRegistry) do 
+            if sw.State then 
+                applyAppleTween(sw.Btn, {BackgroundColor3 = td.Accent}, 0.6) 
+            end 
+        end
     end))
 end
+
 
 local function handleSwitch(btn, knob, state) applyAppleTween(btn, {BackgroundColor3 = state and globalAccentColor or Color3.fromRGB(60, 60, 70)}); applyAppleTween(knob, {Size = UDim2.new(0, 22, 0, 22), BackgroundTransparency = 0.5}, 0.15); applyAppleTween(knob, {Position = state and UDim2.new(0, 30, 0.5, 0) or UDim2.new(0, 10, 0.5, 0)}, 0.3); task.delay(0.15, function() applyAppleTween(knob, {Size = UDim2.new(0, 16, 0, 16), BackgroundTransparency = 0}, 0.15) end) end
 local function toggleSt(name, state, tOn, tOff) local m = activeModules[name]; m.IsActive = state; m.Btn.Text = state and tOn or tOff; applyAppleTween(m.Btn, {TextColor3 = state and globalAccentColor or Color3.fromRGB(200, 200, 210)}, 0.3); applyAppleTween(m.Stroke, {Color = state and globalAccentColor or Color3.fromRGB(255, 255, 255), Transparency = state and 0.5 or 0.8}, 0.3) end
