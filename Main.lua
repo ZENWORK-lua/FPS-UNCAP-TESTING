@@ -1,6 +1,6 @@
 -- [[ HYPER|HUB - STABLE ]]
 _G.HyperMainStart = false
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/Hyper-FPS-3D-Opening/refs/heads/main/Main.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/Hyper-fps-open-3d-TEST-NG/refs/heads/main/Main.lua"))()
 repeat task.wait() until _G.HyperMainStart == true
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
