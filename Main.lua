@@ -365,34 +365,44 @@ local function updateLanguageUI(code)
     if themeTitle then themeTitle.Text = t.ThemeTitle end
     if stabTitle then stabTitle.Text = t.FeaturesTitle end
     if btnRestartScript then btnRestartScript.Text = t.Restart end
-    if dText then dText.Text = t.DiscordText end
-        if lblVer then lblVer.Text = t.VersionTxt end
+    if dLbl then dLbl.Text = t.DiscordText end
+    if lblVer then lblVer.Text = t.VersionTxt end
     if lblServer then lblServer.Text = string.format(t.ServerIdTxt, tostring(game.JobId ~= "" and game.JobId or "12345")) end
     if lblLog1 then lblLog1.Text = t.Log1 end
     if lblLog2 then lblLog2.Text = t.Log2 end
-    if dLbl then dLbl.Text = t.DiscordText end
 
     if infoBody then infoBody.Text = t.InfoTitle end
     if btnCloseInfo then btnCloseInfo.Text = t.CloseInfo end
     if btnConfirmYes then btnConfirmYes.Text = t.Yes end
     if btnConfirmNope then btnConfirmNope.Text = t.Nope end
 
-    local function setSwitchLbl(btnObj, text)
-        if btnObj and btnObj.Parent then
-            local lbl = btnObj.Parent:FindFirstChildOfClass("TextLabel")
-            if lbl then lbl.Text = text end
+    -- SWITCH YAZILARINI CONTAINER İÇİNDEN DİNAMİK YAKALAMA (Scope Hatasını Çözer)
+    local switchMapping = {
+        ["Remember Changes"] = t.Remember, ["Değişiklikleri Hatırla"] = t.Remember, ["Recordar Cambios"] = t.Remember, ["Запомнить Изменения"] = t.Remember,
+        ["Remove 500 FPS Limit"] = t.MaxFps, ["500 FPS Sınırını Kaldır"] = t.MaxFps, ["Sin Límite de 500 FPS"] = t.MaxFps, ["Снять Лимит 500 FPS"] = t.MaxFps,
+        ["Auto-Execute On Teleport"] = t.AutoExec, ["Işınlanmada Oto-Çalıştır"] = t.AutoExec, ["Auto-Ejecutar al Teletransportar"] = t.AutoExec, ["Авто-Запуск при Телепорте"] = t.AutoExec,
+        ["External Navigation"] = t.ExtNav, ["Harici Gezinme"] = t.ExtNav, ["Navegación Externa"] = t.ExtNav, ["Внешняя Навигация"] = t.ExtNav,
+        ["Live FPS Monitor"] = t.FpsMon, ["Canlı FPS Monitörü"] = t.FpsMon, ["Monitor de FPS en Vivo"] = t.FpsMon, ["Монитор FPS"] = t.FpsMon,
+        ["AFK Optimization"] = t.Afk, ["AFK Optimizasyonu"] = t.Afk, ["Optimización AFK"] = t.Afk, ["Оптимизация AFK"] = t.Afk,
+        ["Dynamic Res Scaler (BETA)"] = t.DynRes, ["Dinamik Çözünürlük (BETA)"] = t.DynRes, ["Escalador Dinámico (BETA)"] = t.DynRes, ["Динамическое Разрешение"] = t.DynRes,
+        ["Distance Quality Culling"] = t.DistCull, ["Mesafe Kalite Filtresi"] = t.DistCull, ["Filtro por Distancia"] = t.DistCull, ["Фильтр Дальности"] = t.DistCull,
+        ["Distance Anim Limiter"] = t.AnimLim, ["Mesafe Animasyon Sınırı"] = t.AnimLim, ["Limitador de Animación"] = t.AnimLim, ["Ограничитель Анимаций"] = t.AnimLim
+    }
+
+    local function updateContainerLabels(container)
+        if not container then return end
+        for _, frame in ipairs(container:GetChildren()) do
+            if frame:IsA("Frame") then
+                local lbl = frame:FindFirstChildOfClass("TextLabel")
+                if lbl and switchMapping[lbl.Text] then
+                    lbl.Text = switchMapping[lbl.Text]
+                end
+            end
         end
     end
-    
-    setSwitchLbl(btnRemember, t.Remember)
-    setSwitchLbl(btnMaxFps, t.MaxFps)
-    setSwitchLbl(btnAutoExec, t.AutoExec)
-    setSwitchLbl(btnNavPref, t.ExtNav)
-    setSwitchLbl(btnFpsMon, t.FpsMon)
-    setSwitchLbl(btnAfk, t.Afk)
-    setSwitchLbl(btnDynRes, t.DynRes)
-    setSwitchLbl(btnDistCull, t.DistCull)
-    setSwitchLbl(btnAnimLimit, t.AnimLim)
+
+    updateContainerLabels(sysScroll)
+    updateContainerLabels(featScroll)
 
     if btnRejoin then btnRejoin.Text = t.Rejoin end
     
@@ -415,6 +425,17 @@ local function updateLanguageUI(code)
     updateModuleText("BtnAudio", t.Audio_ON, t.Audio_OFF)
     updateModuleText("BtnGui", t.Gui_OFF, t.Gui_ON)
     updateModuleText("Btn3d", t.Render3d_OFF, t.Render3d_ON)
+
+    if confirmTitle then
+        if confirmStep == 1 then confirmTitle.Text = t.ConfirmClose
+        elseif confirmStep == 2 then confirmTitle.Text = t.ConfirmPersist end
+    end
+    if afkText then 
+        afkText.Text = (code == "TR") and "AFK optimizasyonu aktif.\nDurdurmak için tıklayın" or (code == "RU") and "AFK-оптимизация включена.\nНажмите, чтобы остановить" or (code == "ES") and "Optimización AFK activada.\nHaga clic en cualquier lugar para detener" or "AFK optimization activated.\nClick anywhere to stop" 
+    end
+    if lightLabel then
+        lightLabel.Text = (code == "TR") and "Aydınlatma Motoru:" or (code == "RU") and "Освещение:" or (code == "ES") and "Motor de Luz:" or "Lighting Engine:"
+    end
 end
 
 local isLangOpen = false
@@ -456,7 +477,7 @@ end
         lightLabel.Text = (code == "TR") and "Aydınlatma Motoru:" or (code == "RU") and "Освещение:" or (code == "ES") and "Motor de Luz:" or "Lighting Engine:"
 end
 
-updateLanguageUI(currentLang)
+
 local btnRemember, knobRemember = createSwitch("Remember Changes", sysScroll)
 local btnMaxFps, knobMaxFps = createSwitch("Remove 500 FPS Limit", sysScroll)
 local btnAutoExec, knobAutoExec = createSwitch("Auto-Execute On Teleport", sysScroll)
@@ -675,6 +696,7 @@ bindToggle("BtnWater", "WATER: HIGH", "WATER: LOW", function(s) isWater = s; pca
 bindToggle("BtnGlow", "POST-FX: ON", "POST-FX: OFF", function(s) isGlow = s; asyncProcessDescendants(function(v) if v:IsA("PostEffect") then v.Enabled = s end end) end)
 bindToggle("BtnAudio", "3D AUDIO: ON", "3D AUDIO: OFF", function(s) isAud = s; pcall(function() game:GetService("SoundService").AmbientReverb = s and Enum.ReverbType.NoReverb or Enum.ReverbType.NoReverb end) end)
 bindToggle("Btn3d", "NO RENDER: ON", "NO RENDER: OFF", function(s) is3d = s; pcall(function() RunService:Set3dRenderingEnabled(not s) end) end)
+updateLanguageUI(currentLang)
 table.insert(connections, btnRejoin.MouseButton1Click:Connect(function() TeleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, Players.LocalPlayer) end))
 local function minimizeMenu() currentState = 1; contentContainer.Visible = false; local cPos = mainFrame.Position; applyAppleTween(mainFrame, {Size = UDim2.new(0, 44, 0, 44), Position = UDim2.new(cPos.X.Scale, cPos.X.Offset, cPos.Y.Scale, cPos.Y.Offset - 83)}); applyAppleTween(uiCorner, {CornerRadius = UDim.new(1, 0)}); applyAppleTween(outerAura, {Size = UDim2.new(1, 4, 1, 4)}); applyAppleTween(headerPillTouch, {Size = UDim2.new(1, 20, 1, 20), Position = UDim2.new(0.5, 0, 0.5, 0), AnchorPoint = Vector2.new(0.5, 0.5)}); applyAppleTween(headerPill, {Size = UDim2.new(0, 20, 0, 20), Position = UDim2.new(0.5, 0, 0.5, 0)}); if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = false; applyAppleTween(extBtnClose, {Position = UDim2.new(1, 35, 0.5, 0)}) else extBtnClose.Visible = false; extBtnMin.Visible = false end end
 local function maximizeMenu() currentState = 0; local cPos = mainFrame.Position; applyAppleTween(mainFrame, {Size = UDim2.new(0, 270, 0, 210), Position = UDim2.new(cPos.X.Scale, cPos.X.Offset, cPos.Y.Scale, cPos.Y.Offset + 83)}); applyAppleTween(uiCorner, {CornerRadius = UDim.new(0, 16)}); applyAppleTween(outerAura, {Size = UDim2.new(1, 6, 1, 6)}); applyAppleTween(headerPillTouch, {Size = UDim2.new(0, 150, 0, 32), Position = UDim2.new(0.5, 0, 0, (currentPage == settingsPage and -14 or 0)), AnchorPoint = Vector2.new(0.5, 0)}); applyAppleTween(headerPill, {Size = UDim2.new(0, 50, 0, 5), Position = UDim2.new(0.5, 0, 0, (currentPage == settingsPage and -6 or 12))}); if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = true; applyAppleTween(extBtnClose, {Position = UDim2.new(1, 30, 0, 24)}); applyAppleTween(extBtnMin, {Position = UDim2.new(1, 30, 0, 64)}) end; task.delay(0.1, function() if currentState == 0 then contentContainer.Visible = true end end) end
