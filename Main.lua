@@ -800,14 +800,14 @@ table.insert(connections, btnConfirmNope.MouseButton1Click:Connect(function() if
 table.insert(connections, btnConfirmYes.MouseButton1Click:Connect(function() if confirmStep == 1 then confirmStep = 2; TweenService:Create(fadeCurtain, TweenInfo.new(0.2), {BackgroundTransparency = 0}):Play(); task.delay(0.2, function() confirmTitle.Text = "Do you want the changes to persist?"; TweenService:Create(fadeCurtain, TweenInfo.new(0.2), {BackgroundTransparency = 1}):Play() end) elseif confirmStep == 2 then playClosingAnimation(true) end end))
 
 -- =======================================================
--- 360° VEKTÖREL ESNEME VE YAYLANMA SİSTEMİ (HEADERPILLTOUCH)
+-- REAL 360° DYNAMIC VECTORIAL STRETCH & SPRING SYSTEM
 -- =======================================================
 local baseSize = 44
-local originalUDim = UDim2.new(0, 44, 0, 44)
+local originalUDim = UDim2.new(0, baseSize, 0, baseSize)
 
-local pressTweenInfo = TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-local dragTweenInfo  = TweenInfo.new(0.08, Enum.EasingStyle.Sine, Enum.EasingDirection.Out)
-local releaseTweenInfo = TweenInfo.new(0.45, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+local pressTweenInfo = TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local dragTweenInfo  = TweenInfo.new(0.05, Enum.EasingStyle.Linear, Enum.EasingDirection.Out) -- Anlık tepki için ultra hızlı
+local releaseTweenInfo = TweenInfo.new(0.5, Enum.EasingStyle.Back, Enum.EasingDirection.Out) -- Jöle gibi yaylanma
 
 local isDraggingPillIcon = false
 local lastPillPos = Vector2.zero
@@ -824,9 +824,8 @@ table.insert(connections, headerPillTouch.InputBegan:Connect(function(input)
         startPos = mainFrame.Position
         lastPillPos = Vector2.new(input.Position.X, input.Position.Y)
 
-        -- Sadece Minimize (currentState == 1) Halindeyken Büyüme Esnemesi Yap
         if currentState == 1 then
-            local targetScaledSize = UDim2.new(0, baseSize * 1.2, 0, baseSize * 1.2)
+            local targetScaledSize = UDim2.new(0, baseSize * 1.15, 0, baseSize * 1.15)
             TweenService:Create(mainFrame, pressTweenInfo, {Size = targetScaledSize}):Play()
         end
     end
@@ -850,21 +849,28 @@ table.insert(connections, UserInputService.InputChanged:Connect(function(input)
         
         mainFrame.Position = UDim2.new(startPos.X.Scale, math.clamp(rawX, minX, maxX), startPos.Y.Scale, math.clamp(rawY, minY, maxY))
 
-        -- 360 Derece Vektörel Esneme
+        -- 360 DERECE GERÇEK VEKTÖREL HIZ & ESNEME MATRİSİ
         if currentState == 1 and isDraggingPillIcon then
             local currentPos = Vector2.new(input.Position.X, input.Position.Y)
             local dragDelta = currentPos - lastPillPos
             lastPillPos = currentPos
             
             local speed = dragDelta.Magnitude
-            if speed > 1.5 then
-                local stretchFactor = math.clamp(speed * 0.04, 0, 0.45)
-                local dir = dragDelta.Unit
-                local sizeX = (baseSize * 1.2) * (1 + math.abs(dir.X) * stretchFactor)
-                local sizeY = (baseSize * 1.2) * (1 + math.abs(dir.Y) * stretchFactor)
+            if speed > 0.8 then
+                -- Hıza bağlı esneme katsayısı (Max %80 uzama sınırı)
+                local stretchFactor = math.clamp(speed * 0.035, 0, 0.8)
+                local unit = dragDelta.Unit
+                
+                -- Hangi çapraz/açıda olursa olsun vektörel eksen izdüşümü
+                local stretchX = 1 + (unit.X * unit.X * stretchFactor) - (unit.Y * unit.Y * stretchFactor * 0.3)
+                local stretchY = 1 + (unit.Y * unit.Y * stretchFactor) - (unit.X * unit.X * stretchFactor * 0.3)
+                
+                -- Dinamik olarak yön ağırlıklı boyutlandırma
+                local finalX = math.clamp((baseSize * 1.15) * stretchX, baseSize * 0.6, baseSize * 2.0)
+                local finalY = math.clamp((baseSize * 1.15) * stretchY, baseSize * 0.6, baseSize * 2.0)
                 
                 TweenService:Create(mainFrame, dragTweenInfo, {
-                    Size = UDim2.new(0, sizeX, 0, sizeY)
+                    Size = UDim2.new(0, finalX, 0, finalY)
                 }):Play()
             end
         end
@@ -876,7 +882,7 @@ table.insert(connections, headerPillTouch.InputEnded:Connect(function(input)
         draggingPill = false
         isDraggingPillIcon = false
 
-        -- Bırakılınca Orijinal Yuvarlak Formuna Yaylanarak (Back Easing) Dön
+        -- Bırakıldığında Yaylanarak (Back Easing) Orijinal Formuna Dönüş
         if currentState == 1 then
             TweenService:Create(mainFrame, releaseTweenInfo, {Size = originalUDim}):Play()
         end
@@ -897,6 +903,7 @@ table.insert(connections, headerPillTouch.InputEnded:Connect(function(input)
         end
     end
 end))
+
 
 local function updateSlider(x) local tPos = sliderTrack.AbsolutePosition.X; local tSz = sliderTrack.AbsoluteSize.X; local ratio = math.clamp((x - tPos) / tSz, 0, 1); local fps = math.floor(MIN_FPS + (ratio * (MAX_FPS - MIN_FPS))); sliderFill.Size = UDim2.new(ratio, 0, 1, 0); sliderKnob.Position = UDim2.new(ratio, 0, 0.5, 0); titleLabel.Text = string.format("Target FPS: %d FPS", fps); return fps end
 table.insert(connections, UserInputService.InputBegan:Connect(function(input) if isIntroPlaying or currentState == 1 or not mainPage.Visible then return end; if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then local pos, tPos, tSz = input.Position, sliderTrack.AbsolutePosition, sliderTrack.AbsoluteSize; if pos.X >= tPos.X-15 and pos.X <= tPos.X+tSz.X+15 and pos.Y >= tPos.Y-20 and pos.Y <= tPos.Y+tSz.Y+20 then draggingSlider = true; updateSlider(pos.X); applyAppleTween(sliderKnob, {Size = UDim2.new(0, 24, 0, 24), BackgroundTransparency = 0.5}, 0.15) end end end))
