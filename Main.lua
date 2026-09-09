@@ -963,7 +963,7 @@ task.spawn(function()
     infoOverlay.Visible = true; if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = true end
 end)
 -- =======================================================
--- HYPER FPS STYLE DISCORD OVERLAY (RIGTH-ALIGNED)
+-- HYPER FPS STYLE DISCORD OVERLAY (ANIMATED & RIGHT-ALIGNED)
 -- =======================================================
 
 task.spawn(function()
@@ -983,35 +983,41 @@ task.spawn(function()
         overlayGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
     end
 
-    -- 2. Ana Kart (Hyper FPS Konturlu & Yarı Saydam Tasarım)
+    -- Hedef ve Başlangıç Konum/Boyut Tanımlamaları
+    local targetPos = UDim2.new(1, -230, 0.35, 0)
+    local startPosAnim = UDim2.new(1, -230, 0.42, 0) -- Başlangıçta biraz daha aşağıda
+    
+    local targetSize = UDim2.new(0, 210, 0, 110)
+    local startSizeAnim = UDim2.new(0, 150, 0, 78)  -- Başlangıçta daha küçük
+
+    -- 2. Ana Kart
     local discordOverlay = Instance.new("Frame")
     discordOverlay.Name = "SyroxDiscordOverlay"
-    discordOverlay.Size = UDim2.new(0, 210, 0, 110)
-    -- Ekranın Sağ Tarafında Hizalama (Ana menü ile çakışmaz)
-    discordOverlay.Position = UDim2.new(1, -230, 0.35, 0)
+    discordOverlay.Size = startSizeAnim
+    discordOverlay.Position = startPosAnim
     discordOverlay.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
-    discordOverlay.BackgroundTransparency = 0.25
+    discordOverlay.BackgroundTransparency = 1 -- Animasyonla belirecek
     discordOverlay.BorderSizePixel = 0
     discordOverlay.ClipsDescendants = false
     discordOverlay.Parent = overlayGui
 
     Instance.new("UICorner", discordOverlay).CornerRadius = UDim.new(0, 10)
 
-    -- Hyper FPS Tarzı Neon / Modern Kontur (UIStroke)
+    -- Hyper FPS Tarzı UIStroke (Kontur)
     local frameStroke = Instance.new("UIStroke")
     frameStroke.Color = Color3.fromRGB(88, 101, 242)
-    frameStroke.Transparency = 0.4
+    frameStroke.Transparency = 1
     frameStroke.Thickness = 1.2
     frameStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
     frameStroke.Parent = discordOverlay
 
-    -- İç Kapsül (Pill) - Menünün İÇ En Üstünde
+    -- İç Kapsül (Pill)
     local pillBtn = Instance.new("TextButton")
     pillBtn.Name = "PillHandle"
     pillBtn.Size = UDim2.new(0, 50, 0, 6)
     pillBtn.Position = UDim2.new(0.5, -25, 0, 8)
     pillBtn.BackgroundColor3 = Color3.fromRGB(200, 200, 220)
-    pillBtn.BackgroundTransparency = 0.4
+    pillBtn.BackgroundTransparency = 1
     pillBtn.Text = ""
     pillBtn.AutoButtonColor = false
     pillBtn.Parent = discordOverlay
@@ -1023,9 +1029,10 @@ task.spawn(function()
     joinBtn.Size = UDim2.new(0.85, 0, 0.45, 0)
     joinBtn.Position = UDim2.new(0.075, 0, 0.4, 0)
     joinBtn.BackgroundColor3 = Color3.fromRGB(88, 101, 242)
-    joinBtn.BackgroundTransparency = 0.2
+    joinBtn.BackgroundTransparency = 1
     joinBtn.Text = "DISCORD SERVER"
     joinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    joinBtn.TextTransparency = 1
     joinBtn.Font = Enum.Font.SourceSansBold
     joinBtn.TextSize = 13
     joinBtn.Parent = discordOverlay
@@ -1033,19 +1040,56 @@ task.spawn(function()
 
     local btnStroke = Instance.new("UIStroke")
     btnStroke.Color = Color3.fromRGB(255, 255, 255)
-    btnStroke.Transparency = 0.8
+    btnStroke.Transparency = 1
     btnStroke.Thickness = 1
     btnStroke.Parent = joinBtn
 
-    -- RAM Şişmeyen C++ Animasyonu
+    -- 3. GİRİŞ ANİMASYONU (Aydınlanarak Yükselme & Büyüme)
+    local animTime = 0.45
+    local tweenInfoIn = TweenInfo.new(animTime, Enum.EasingStyle.Back, Enum.EasingDirection.Out)
+    local tweenInfoFade = TweenInfo.new(animTime, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+    TweenService:Create(discordOverlay, tweenInfoIn, {Position = targetPos, Size = targetSize}):Play()
+    TweenService:Create(discordOverlay, tweenInfoFade, {BackgroundTransparency = 0.25}):Play()
+    TweenService:Create(frameStroke, tweenInfoFade, {Transparency = 0.4}):Play()
+    TweenService:Create(pillBtn, tweenInfoFade, {BackgroundTransparency = 0.4}):Play()
+    TweenService:Create(joinBtn, tweenInfoFade, {BackgroundTransparency = 0.2, TextTransparency = 0}):Play()
+    TweenService:Create(btnStroke, tweenInfoFade, {Transparency = 0.8}):Play()
+
+    -- Metin Büyüyüp Küçülme Animasyonu (Loop)
     local pulseInfo = TweenInfo.new(0.8, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
     local pulseTween = TweenService:Create(joinBtn, pulseInfo, {
         TextSize = 15,
         BackgroundTransparency = 0.0
     })
-    pulseTween:Play()
+    
+    task.delay(animTime, function()
+        if pulseTween then pulseTween:Play() end
+    end)
 
-    -- 3. Sürükleme ve 150ms Tıklama Filtresi
+    -- 4. KANAPANMA ANİMASYONU (Tersi: Küçülerek Aşağı Süzülme)
+    local isClosing = false
+    local function closeMenuWithAnimation()
+        if isClosing then return end
+        isClosing = true
+
+        pulseTween:Cancel()
+
+        local tweenInfoOut = TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.In)
+        local tweenInfoFadeOut = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+
+        TweenService:Create(discordOverlay, tweenInfoOut, {Position = startPosAnim, Size = startSizeAnim}):Play()
+        TweenService:Create(discordOverlay, tweenInfoFadeOut, {BackgroundTransparency = 1}):Play()
+        TweenService:Create(frameStroke, tweenInfoFadeOut, {Transparency = 1}):Play()
+        TweenService:Create(pillBtn, tweenInfoFadeOut, {BackgroundTransparency = 1}):Play()
+        TweenService:Create(joinBtn, tweenInfoFadeOut, {BackgroundTransparency = 1, TextTransparency = 1}):Play()
+        TweenService:Create(btnStroke, tweenInfoFadeOut, {Transparency = 1}):Play()
+
+        task.wait(0.35)
+        overlayGui:Destroy()
+    end
+
+    -- 5. Sürükleme ve 150ms Tıklama Mantığı
     local dragging = false
     local dragStart, startPos
     local pressStartTime = 0
@@ -1060,6 +1104,7 @@ task.spawn(function()
     end
 
     pillBtn.InputBegan:Connect(function(input)
+        if isClosing then return end
         if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
             dragging = true
             hasMoved = false
@@ -1070,12 +1115,10 @@ task.spawn(function()
             input.Changed:Connect(function()
                 if input.UserInputState == Enum.UserInputState.End then
                     dragging = false
-                    local duration = (os.clock() - pressStartTime) * 1000 -- Milisaniye
+                    local duration = (os.clock() - pressStartTime) * 1000
                     
-                    -- EĞER 150ms'den kısa sürdüyse ve parmak kaymadıysa -> SİL / KAPAT
                     if duration <= 150 and not hasMoved then
-                        pulseTween:Cancel()
-                        overlayGui:Destroy()
+                        closeMenuWithAnimation()
                     end
                 end
             end)
@@ -1083,13 +1126,14 @@ task.spawn(function()
     end)
 
     pillBtn.InputChanged:Connect(function(input)
-        if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        if dragging and not isClosing and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
             updateInput(input)
         end
     end)
 
-    -- 4. Discord Link & Yönlendirme
+    -- 6. Discord Link & Yönlendirme
     joinBtn.MouseButton1Click:Connect(function()
+        if isClosing then return end
         local inviteUrl = "https://discord.gg/KVsveRfEmt"
         
         if setclipboard then setclipboard(inviteUrl)
@@ -1116,5 +1160,3 @@ task.spawn(function()
         end)
     end)
 end)
-
-
