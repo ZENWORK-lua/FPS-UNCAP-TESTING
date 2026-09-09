@@ -962,3 +962,144 @@ task.spawn(function()
     applyAppleTween(mainFrame, {Size = UDim2.new(0, 270, 0, 210)}, 0.5); applyAppleTween(uiCorner, {CornerRadius = UDim.new(0, 16)}, 0.5); applyAppleTween(headerPill, {Size = UDim2.new(0, 50, 0, 5), Position = UDim2.new(0.5, 0, 0, 12)}, 0.5); task.wait(0.3)
     infoOverlay.Visible = true; if isExtNav then extBtnClose.Visible = true; extBtnMin.Visible = true end
 end)
+
+-- =======================================================
+-- DISCORD OVERLAY & FLOATING PILL SYSTEM
+-- =======================================================
+
+local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
+local HttpService = game:GetService("HttpService")
+
+local discordOverlay = Instance.new("Frame")
+discordOverlay.Name = "DiscordOverlay"
+discordOverlay.Size = UDim2.new(0, 220, 0, 100)
+discordOverlay.Position = UDim2.new(0.5, -110, 0.15, 0)
+discordOverlay.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+discordOverlay.BorderSizePixel = 0
+discordOverlay.ClipsDescendants = false
+discordOverlay.Parent = mainScreenGui -- Seninkinde ekran GUI'si neyse o (örn: screenGui)
+
+Instance.new("UICorner", discordOverlay).CornerRadius = UDim.new(0, 12)
+
+-- Arka Plan Mavi-Mor Gradient
+local gradient = Instance.new("UIGradient")
+gradient.Color = ColorSequence.new({
+    ColorSequenceKeypoint.new(0, Color3.fromRGB(88, 101, 242)), -- Discord Mavisı
+    ColorSequenceKeypoint.new(1, Color3.fromRGB(114, 137, 218)) -- Morumsu Mavi
+})
+gradient.Rotation = 45
+gradient.Parent = discordOverlay
+
+-- Üst Kısım: Sürükleme ve Kapatma Kapsülü (Pill)
+local pillBtn = Instance.new("TextButton")
+pillBtn.Name = "PillHandle"
+pillBtn.Size = UDim2.new(0, 60, 0, 10)
+pillBtn.Position = UDim2.new(0.5, -30, 0, -16)
+pillBtn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+pillBtn.BackgroundTransparency = 0.3
+pillBtn.Text = ""
+pillBtn.AutoButtonColor = false
+pillBtn.Parent = discordOverlay
+Instance.new("UICorner", pillBtn).CornerRadius = UDim.new(1, 0)
+
+-- Discord Katıl Butonu
+local joinBtn = Instance.new("TextButton")
+joinBtn.Name = "JoinDiscordBtn"
+joinBtn.Size = UDim2.new(0.85, 0, 0.5, 0)
+joinBtn.Position = UDim2.new(0.075, 0, 0.3, 0)
+joinBtn.BackgroundColor3 = Color3.fromRGB(15, 15, 20)
+joinBtn.BackgroundTransparency = 0.2
+joinBtn.Text = "DISCORD SERVER"
+joinBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+joinBtn.Font = Enum.Font.SourceSansBold
+joinBtn.TextSize = 14
+joinBtn.Parent = discordOverlay
+Instance.new("UICorner", joinBtn).CornerRadius = UDim.new(0, 8)
+
+-- 1. RAM ŞİŞMEYEN LUA-C++ TWEEN DÖNGÜSÜ (Büyüyüp Küçülme Effect)
+local pulseInfo = TweenInfo.new(
+    0.8,                        -- Süre (sn)
+    Enum.EasingStyle.Sine,      -- Yumuşak geçiş
+    Enum.EasingDirection.InOut, 
+    -1,                         -- Sınırsız Tekrar (-1 RAM şişirmez!)
+    true                        -- Reverses (Büyüyüp geri küçülür)
+)
+
+local pulseTween = TweenService:Create(joinBtn, pulseInfo, {
+    TextSize = 17,
+    TextColor3 = Color3.fromRGB(88, 101, 242)
+})
+pulseTween:Play()
+
+-- 2. SÜRÜKLEME VE YANLIŞLIKLA TIKLAMA ENGELLEME
+local dragging = false
+local dragStartPos = nil
+local frameStartPos = nil
+local totalDragDistance = 0
+
+pillBtn.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStartPos = input.Position
+        frameStartPos = discordOverlay.Position
+        totalDragDistance = 0
+    end
+end)
+
+pillBtn.InputChanged:Connect(function(input)
+    if dragging and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+        local delta = input.Position - dragStartPos
+        totalDragDistance = totalDragDistance + delta.Magnitude
+        discordOverlay.Position = UDim2.new(
+            frameStartPos.X.Scale,
+            frameStartPos.X.Offset + delta.X,
+            frameStartPos.Y.Scale,
+            frameStartPos.Y.Offset + delta.Y
+        )
+    end
+end)
+
+pillBtn.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        if dragging then
+            dragging = false
+            -- Eğer sürükleme mesafesi 5 pikselden azsa bu bir "Tıklama"dır -> Menüyü kapat
+            if totalDragDistance < 5 then
+                pulseTween:Cancel() -- Belleği serbest bırak
+                discordOverlay:Destroy()
+            end
+        end
+    end
+end)
+
+-- 3. DISCORD YÖNLENDİRME (BROWSER & PROXY BYPASS)
+joinBtn.MouseButton1Click:Connect(function()
+    local inviteUrl = "https://discord.gg/KVsveRfEmt"
+    
+    -- Panoya kopyala (Hangi executor olursa olsun)
+    if setclipboard then setclipboard(inviteUrl)
+    elseif toclipboard then toclipboard(inviteUrl) end
+    
+    -- Discord Yerel Yönlendirme Denemesi (Discord App Prompt)
+    pcall(function()
+        local req = (syn and syn.request) or (http and http.request) or http_request or request
+        if req then
+            req({
+                Url = "http://127.0.0.1:6463/rpc?v=1",
+                Method = "POST",
+                Headers = {["Content-Type"] = "application/json", ["Origin"] = "https://discord.com"},
+                Body = HttpService:JSONEncode({
+                    cmd = "INVITE_BROWSER",
+                    args = {code = "KVsveRfEmt"},
+                    nonce = HttpService:GenerateGUID(false)
+                })
+            })
+        end
+    end)
+    
+    -- Varsayılan tarayıcıda davet linkini açma
+    pcall(function()
+        if openurl then openurl(inviteUrl) end
+    end)
+end)
