@@ -519,7 +519,7 @@ dLbl.Parent = infoCard
 -- 30 Saniyelik Dinamik FPS Yargılama Mantığı
 task.spawn(function()
     while env.SYROX_RUNNING do
-        local fpsVal = currentRealFps or 10
+        local fpsVal = currentRealFps if 10
         local rating = "LOW"
         if fpsVal >= 65 then
             rating = "SUPER"
@@ -768,33 +768,64 @@ table.insert(connections, RunService.RenderStepped:Connect(function()
     end
 end))
 
+local partCache = {}
+local humCache = {}
+
+-- Mevcut objeleri önbelleğe al
+for _, v in ipairs(workspace:GetDescendants()) do
+    if v:IsA("BasePart") then table.insert(partCache, v)
+    elseif v:IsA("Humanoid") then table.insert(humCache, v) end
+end
+
+-- Yeni eklenenleri otomatik önbelleğe al
+workspace.DescendantAdded:Connect(function(v)
+    if v:IsA("BasePart") then table.insert(partCache, v)
+    elseif v:IsA("Humanoid") then table.insert(humCache, v) end
+end)
+
 task.spawn(function()
     while env.SYROX_RUNNING do
-        task.wait(1)
+        task.wait(1.5) -- Saniyede bir yerine 1.5 saniyede bir hafif tarama
         if not isDistCull and not isAnimLim then continue end
-        local lp = Players.LocalPlayer; local char = lp.Character; local root = char and char:FindFirstChild("HumanoidRootPart")
+        local lp = Players.LocalPlayer
+        local char = lp.Character
+        local root = char and char:FindFirstChild("HumanoidRootPart")
         if not root then continue end
-        local pos = root.Position; local count = 0
-        for _, v in ipairs(workspace:GetDescendants()) do
-            if isDistCull and v:IsA("BasePart") then
-                local dist = (v.Position - pos).Magnitude
-                if dist > 350 then v.LocalTransparencyModifier = 1
-                elseif dist > 150 then v.LocalTransparencyModifier = 0; v.Material = Enum.Material.SmoothPlastic; v.CastShadow = false
-                else v.LocalTransparencyModifier = 0 end
-            end
-            if isAnimLim and v:IsA("Humanoid") and v.Parent ~= char then
-                local pRoot = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Torso")
-                if pRoot then
-                    local dist = (pRoot.Position - pos).Magnitude
-                    if dist > 150 then v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None; for _, track in ipairs(v:GetPlayingAnimationTracks()) do track:AdjustSpeed(0) end
-                    else v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer; for _, track in ipairs(v:GetPlayingAnimationTracks()) do if track.Speed == 0 then track:AdjustSpeed(1) end end end
+        local pos = root.Position
+        
+        if isDistCull then
+            for i = 1, #partCache do
+                local v = partCache[i]
+                if v and v.Parent then
+                    local dist = (v.Position - pos).Magnitude
+                    if dist > 350 then v.LocalTransparencyModifier = 1
+                    elseif dist > 150 then v.LocalTransparencyModifier = 0; v.Material = Enum.Material.SmoothPlastic; v.CastShadow = false
+                    else v.LocalTransparencyModifier = 0 end
                 end
             end
-            count = count + 1; if count % 200 == 0 then RunService.RenderStepped:Wait() end
+        end
+        
+        if isAnimLim then
+            for i = 1, #humCache do
+                local v = humCache[i]
+                if v and v.Parent and v.Parent ~= char then
+                    local pRoot = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Torso")
+                    if pRoot then
+                        local dist = (pRoot.Position - pos).Magnitude
+                        if dist > 150 then 
+                            v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+                            for _, track in ipairs(v:GetPlayingAnimationTracks()) do track:AdjustSpeed(0) end
+                        else 
+                            v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+                            for _, track in ipairs(v:GetPlayingAnimationTracks()) do if track.Speed == 0 then track:AdjustSpeed(1) end end 
+                        end
+                    end
+                end
+            end
         end
     end
 end)
-
+    
 table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
 
 screenGui.Parent = targetGui
