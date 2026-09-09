@@ -1,6 +1,6 @@
 -- [[ HYPER|HUB - STABLE ]]
 _G.HyperMainStart = false
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/Hyper-FPS-3D-Opening/refs/heads/main/Main.lua"))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/FPS-UNCAP/refs/heads/main/Assistant.lua"))()
 repeat task.wait() until _G.HyperMainStart == true
 _G.HyperMainStart = nil
 if game:GetService("CoreGui"):FindFirstChild("HyperOpeningUI") then
