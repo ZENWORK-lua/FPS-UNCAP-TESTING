@@ -639,36 +639,62 @@ local function bindSwitch(btn, knob, swName, cb) switchRegistry[swName] = {Btn =
 local function bindToggle(name, tOn, tOff, cb) local m = activeModules[name]; if env.HYPER_SAVE.Toggles[name] then m.IsActive = true; toggleSt(name, true, tOn, tOff); task.spawn(cb, true) end
     table.insert(connections, m.Btn.MouseButton1Click:Connect(function() m.IsActive = not m.IsActive; toggleSt(name, m.IsActive, tOn, tOff); cb(m.IsActive); env.HYPER_SAVE.Toggles[name] = m.IsActive; env.saveHubData() end)) end
 
-local lightFrame = Instance.new("Frame")
-lightFrame.Size = UDim2.new(1, -8, 0, 30); lightFrame.BackgroundTransparency = 1; lightFrame.LayoutOrder = -1; lightFrame.Parent = featScroll
-local lightLabel = Instance.new("TextLabel")
-lightLabel.Size = UDim2.new(0.5, 0, 1, 0); lightLabel.BackgroundTransparency = 1; lightLabel.Font = Enum.Font.SourceSansBold; lightLabel.Text = "Lighting Engine:"
-lightLabel.TextColor3 = Color3.fromRGB(200, 200, 210); lightLabel.TextSize = 12; lightLabel.TextXAlignment = Enum.TextXAlignment.Left; lightLabel.Parent = lightFrame
-local lightBtn = Instance.new("TextButton")
-lightBtn.Size = UDim2.new(0.45, 0, 1, 0); lightBtn.Position = UDim2.new(0.55, 0, 0, 0); lightBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
-lightBtn.Font = Enum.Font.SourceSansBold; lightBtn.Text = "Future (Max)"; lightBtn.TextColor3 = Color3.fromRGB(255, 255, 255); lightBtn.TextSize = 11; lightBtn.Parent = lightFrame
-Instance.new("UICorner", lightBtn).CornerRadius = UDim.new(0, 6)
+local perfFrame = Instance.new("Frame")
+perfFrame.Size = UDim2.new(1, -8, 0, 30); perfFrame.BackgroundTransparency = 1; perfFrame.LayoutOrder = -1; perfFrame.Parent = featScroll
+local perfLabel = Instance.new("TextLabel")
+perfLabel.Size = UDim2.new(0.5, 0, 1, 0); perfLabel.BackgroundTransparency = 1; perfLabel.Font = Enum.Font.SourceSansBold; perfLabel.Text = "Engine Profile:"
+perfLabel.TextColor3 = Color3.fromRGB(200, 200, 210); perfLabel.TextSize = 12; perfLabel.TextXAlignment = Enum.TextXAlignment.Left; perfLabel.Parent = perfFrame
+local perfBtn = Instance.new("TextButton")
+perfBtn.Size = UDim2.new(0.45, 0, 1, 0); perfBtn.Position = UDim2.new(0.55, 0, 0, 0); perfBtn.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+perfBtn.Font = Enum.Font.SourceSansBold; perfBtn.Text = "Default"; perfBtn.TextColor3 = Color3.fromRGB(255, 255, 255); perfBtn.TextSize = 11; perfBtn.Parent = perfFrame
+Instance.new("UICorner", perfBtn).CornerRadius = UDim.new(0, 6)
 
-local lightModes = {
-    {Name = "Future (Max)", Tech = Enum.Technology.Future},
-    {Name = "ShadowMap", Tech = Enum.Technology.ShadowMap},
-    {Name = "Voxel", Tech = Enum.Technology.Voxel},
-    {Name = "Legacy (Min)", Tech = Enum.Technology.Compatibility}
+local profiles = {
+    {Name = "Default", Apply = function()
+        pcall(function()
+            if sethiddenproperty then sethiddenproperty(game:GetService("Lighting"), "Technology", Enum.Technology.ShadowMap) end
+            workspace.PhysicsSteppingMethod = Enum.PhysicsSteppingMethod.Default
+            settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.DistanceBased
+            Lighting.EnvironmentSpecularScale = 1
+            Lighting.EnvironmentDiffuseScale = 1
+            workspace.Terrain.Decoration = true
+        end)
+    end},
+    {Name = "Balanced", Apply = function()
+        pcall(function()
+            if sethiddenproperty then sethiddenproperty(game:GetService("Lighting"), "Technology", Enum.Technology.Voxel) else game:GetService("Lighting").Technology = Enum.Technology.Voxel end
+            workspace.PhysicsSteppingMethod = Enum.PhysicsSteppingMethod.Adaptive
+            settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level02
+            Lighting.EnvironmentSpecularScale = 0
+            Lighting.EnvironmentDiffuseScale = 0.5
+            workspace.Terrain.Decoration = true
+        end)
+    end},
+    {Name = "Performance", Apply = function()
+        pcall(function()
+            if sethiddenproperty then sethiddenproperty(game:GetService("Lighting"), "Technology", Enum.Technology.Compatibility) else game:GetService("Lighting").Technology = Enum.Technology.Compatibility end
+            workspace.PhysicsSteppingMethod = Enum.PhysicsSteppingMethod.Adaptive
+            settings().Rendering.MeshPartDetailLevel = Enum.MeshPartDetailLevel.Level00
+            Lighting.EnvironmentSpecularScale = 0
+            Lighting.EnvironmentDiffuseScale = 0
+            local t = workspace.Terrain
+            t.Decoration = false
+            t.WaterWaveSize = 0
+            t.WaterWaveSpeed = 0
+            t.WaterReflectance = 0
+        end)
+    end}
 }
-local currentLightIdx = 1
+local currentProfileIdx = 1
 
-table.insert(connections, lightBtn.MouseButton1Click:Connect(function()
-    currentLightIdx = currentLightIdx + 1
-    if currentLightIdx > #lightModes then currentLightIdx = 1 end
-    lightBtn.Text = lightModes[currentLightIdx].Name
-    pcall(function()
-        if sethiddenproperty then
-            sethiddenproperty(game:GetService("Lighting"), "Technology", lightModes[currentLightIdx].Tech)
-        else
-            game:GetService("Lighting").Technology = lightModes[currentLightIdx].Tech
-        end
-    end)
+table.insert(connections, perfBtn.MouseButton1Click:Connect(function()
+    currentProfileIdx = currentProfileIdx + 1
+    if currentProfileIdx > #profiles then currentProfileIdx = 1 end
+    local prof = profiles[currentProfileIdx]
+    perfBtn.Text = prof.Name
+    prof.Apply()
 end))
+
 
 local unlockFps, autoExec, isAfkEngine, isDynRes, isDistCull, isAnimLim, isExtNav = false, false, false, false, false, false, false
 local isLow, isShdw, isCast, isTex, isPart, isHigh, isWater, isGlow, isAud, is3d = false, true, true, false, false, true, true, true, true, true
