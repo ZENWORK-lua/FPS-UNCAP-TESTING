@@ -180,7 +180,7 @@ local currentLang = env.HYPER_SAVE.Language or "EN"
         AutoExec = "Auto-Execute On Teleport", ExtNav = "External Navigation",
         FpsMon = "Live FPS Monitor", Afk = "AFK Optimization",
         DynRes = "Dynamic Res Scaler (BETA)", DistCull = "Distance Quality Culling",
-        AnimLim = "Distance Anim Limiter", DeepRam = "Deep RAM Flush",
+        AnimLim = "Distance Anim Limiter",
         
         Rejoin = "REJOIN SERVER", GfxLvl = "GFX LVL: AUTO",
         LowGfx_OFF = "LOW GFX: OFF", LowGfx_ON = "LOW GFX: ON",
@@ -213,8 +213,8 @@ local currentLang = env.HYPER_SAVE.Language or "EN"
         AutoExec = "Işınlanmada Oto-Çalıştır", ExtNav = "Harici Gezinme",
         FpsMon = "Canlı FPS Monitörü", Afk = "AFK Optimizasyonu",
         DynRes = "Dinamik Çözünürlük (BETA)", DistCull = "Mesafe Kalite Filtresi",
-        AnimLim = "Mesafe Animasyon Sınırı", DeepRam = "Derin RAM Temizliği",
-        
+        AnimLim = "Mesafe Animasyon Sınırı",
+
         Rejoin = "SUNUCUYA YENİDEN KATIL", GfxLvl = "GFX SEVİYE: OTO",
         LowGfx_OFF = "DÜŞÜK GFX: KAPALI", LowGfx_ON = "DÜŞÜK GFX: AÇIK",
         Shadows_ON = "GÖLGELER: AÇIK", Shadows_OFF = "GÖLGELER: KAPALI",
@@ -246,7 +246,7 @@ local currentLang = env.HYPER_SAVE.Language or "EN"
         AutoExec = "Auto-Ejecutar al Teletransportar", ExtNav = "Navegación Externa",
         FpsMon = "Monitor de FPS en Vivo", Afk = "Optimización AFK",
         DynRes = "Escalador Dinámico (BETA)", DistCull = "Filtro por Distancia",
-        AnimLim = "Limitador de Animación", DeepRam = "Limpieza Profunda de RAM",
+        AnimLim = "Limitador de Animación",
         
         Rejoin = "REUNIRSE AL SERVIDOR", GfxLvl = "NIVEL GFX: AUTO",
         LowGfx_OFF = "GFX BAJO: OFF", LowGfx_ON = "GFX BAJO: ON",
@@ -279,7 +279,7 @@ local currentLang = env.HYPER_SAVE.Language or "EN"
         AutoExec = "Авто-Запуск при Телепорте", ExtNav = "Внешняя Навигация",
         FpsMon = "Монитор FPS", Afk = "Оптимизация AFK",
         DynRes = "Динамическое Разрешение", DistCull = "Фильтр Дальности",
-        AnimLim = "Ограничитель Анимаций", DeepRam = "Глубокая Очистка ОЗУ",
+        AnimLim = "Ограничитель Анимаций",
         
         Rejoin = "ПЕРЕПОДКЛЮЧИТЬСЯ", GfxLvl = "ГРАФИКА: АВТО",
         LowGfx_OFF = "НИЗК. ГРАФИКА: ВЫКЛ", LowGfx_ON = "НИЗК. ГРАФИКА: ВКЛ",
@@ -393,7 +393,6 @@ local function updateLanguageUI(code)
     setSwitchLbl(btnDynRes, t.DynRes)
     setSwitchLbl(btnDistCull, t.DistCull)
     setSwitchLbl(btnAnimLimit, t.AnimLim)
-    setSwitchLbl(btnDeepRam, t.DeepRam)
 
     if btnRejoin then btnRejoin.Text = t.Rejoin end
     
@@ -538,7 +537,6 @@ local btnAfk, knobAfk = createSwitch("AFK Optimization", featScroll)
 local btnDynRes, knobDynRes = createSwitch("Dynamic Res Scaler (BETA)", featScroll)
 local btnDistCull, knobDistCull = createSwitch("Distance Quality Culling", featScroll)
 local btnAnimLimit, knobAnimLimit = createSwitch("Distance Anim Limiter", featScroll)
-local btnDeepRam, knobDeepRam = createSwitch("Deep RAM Flush", featScroll)
 local themeTitle = Instance.new("TextLabel"); themeTitle.Size = UDim2.new(1, -24, 0, 22); themeTitle.Position = UDim2.new(0, 12, 0, 20); themeTitle.BackgroundTransparency = 1; themeTitle.Font = Enum.Font.SourceSansBold; themeTitle.TextColor3 = Color3.fromRGB(255, 255, 255); themeTitle.TextSize = 16; themeTitle.TextXAlignment = Enum.TextXAlignment.Center; themeTitle.Text = "MY THEMES"; themeTitle.Parent = themePage
 local tMask = Instance.new("CanvasGroup"); tMask.Size = UDim2.new(1, -24, 0, 150); tMask.Position = UDim2.new(0, 12, 0, 50); tMask.BackgroundTransparency = 1; tMask.BorderSizePixel = 0; tMask.Parent = themePage
 local tGrad = Instance.new("UIGradient"); tGrad.Rotation = 90; tGrad.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.08, 0), NumberSequenceKeypoint.new(0.92, 0), NumberSequenceKeypoint.new(1, 1)}); tGrad.Parent = tMask
@@ -621,7 +619,6 @@ bindSwitch(btnMaxFps, knobMaxFps, "MaxFps", function(s) unlockFps = s; MAX_FPS =
 bindSwitch(btnAutoExec, knobAutoExec, "AutoExec", function(s) autoExec = s; local qot = (syn and syn.queue_on_teleport) or queue_on_teleport; if qot then qot([[loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/FPS-UNCAP/refs/heads/main/Main.lua"))()]]) end end)
 bindSwitch(btnAfk, knobAfk, "Afk", function(s) isAfkEngine = s; if s then pcall(function() game:GetService("StarterGui"):SetCore("SendNotification", {Title="HYPERWORK", Text="AFK Optimization Activated!", Duration=3}) end) end end)
 bindSwitch(btnDynRes, knobDynRes, "DynRes", function(s) isDynRes = s end)
-bindSwitch(btnDeepRam, knobDeepRam, "DeepRam", function(s) if s then task.wait(0.2); pcall(function() collectgarbage("collect") end); handleSwitch(btnDeepRam, knobDeepRam, false); switchRegistry["DeepRam"].State = false; env.HYPER_SAVE.Switches["DeepRam"] = false end end)
 bindSwitch(btnDistCull, knobDistCull, "DistCull", function(s) isDistCull = s; if not s then task.spawn(function() for _, v in ipairs(workspace:GetDescendants()) do if v:IsA("BasePart") then v.LocalTransparencyModifier = 0 end end end) end end)
 bindSwitch(btnAnimLimit, knobAnimLimit, "AnimLim", function(s) isAnimLim = s; if not s then task.spawn(function() for _, v in ipairs(workspace:GetDescendants()) do if v:IsA("Humanoid") then v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer; for _, t in ipairs(v:GetPlayingAnimationTracks()) do if t.Speed == 0 then t:AdjustSpeed(1) end end end end end) end end)
 
