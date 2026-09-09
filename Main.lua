@@ -847,32 +847,6 @@ task.spawn(function()
         end
     end
     
-    -- Script tamamen kapatıldığında DescendantAdded event'ini de temizle
-    if connection then connection:Disconnect() end
-end)
-    
-        if isAnimLim then
-            for i = #humCache, 1, -1 do
-                local v = humCache[i]
-                if not v or not v.Parent then
-                    table.remove(humCache, i)
-                elseif v.Parent ~= char then
-                    local pRoot = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Torso")
-                    if pRoot then
-                        local dist = (pRoot.Position - pos).Magnitude
-                        if dist > 150 then 
-                            v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
-                            for _, track in ipairs(v:GetPlayingAnimationTracks()) do track:AdjustSpeed(0) end
-                        else 
-                            v.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
-                            for _, track in ipairs(v:GetPlayingAnimationTracks()) do if track.Speed == 0 then track:AdjustSpeed(1) end end 
-                        end
-                    end
-                end
-            end
-        end
-    end
-end)
     
     
 table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
