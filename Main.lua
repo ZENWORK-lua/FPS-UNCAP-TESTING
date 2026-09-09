@@ -766,6 +766,19 @@ table.insert(connections, RunService.RenderStepped:Connect(function()
 end))
 
 task.spawn(function()
+    while env.SYROX_RUNNING do
+        task.wait(180) -- 3 Dakika Cooldown
+        -- 10 saniye boyunca ekrana tıklanmamışsa (Idle kontrolü)
+        while (os.clock() - lastInputTime) < 10 do
+            task.wait(1)
+        end
+        pcall(function() 
+            collectgarbage("collect") 
+        end)
+    end
+end)
+
+task.spawn(function()
     -- Her şeyi spawn içine aldık ki ana menüyü asla etkilemesin
     local partCache = {}
     local humCache = {}
