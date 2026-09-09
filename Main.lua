@@ -317,18 +317,16 @@ end
 -------------------------------------------------------------------------------
 
 -- Platoboost objesini globale sabitliyoruz (Bulamazsa boş tablo açar, çökmez)
-getgenv().PlatoboostAPI = Platoboost or _G.Platoboost
-
+pcall(function()
+    _G.PlatoboostAPI = Platoboost or Boost or _G.Platoboost or _G.Boost
+end)
 -- =======================================================
 -- 2. MASKOT ÇAĞIRMA VE GÜVENLİ BEKLEME
 -- =======================================================
-_G.HyperMainStart = false
 loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/Hyper-FPS-3D-Opening/refs/heads/main/Main.lua"))()
 
--- Sonsuz kilitlenmeyi önlemek için güvenli bekleme döngüsü
-while not _G.HyperMainStart do
-    task.wait(0.1)
-end
+-- Maskot doğrulama verene kadar ana script kilitli bekler:
+repeat task.wait(0.1) until _G.HyperMainStart == true
 
 -- (Buradan aşağısı senin orijinal Hyper FPS GUI kodların...)
 
