@@ -771,22 +771,32 @@ end))
 local partCache = {}
 local humCache = {}
 
--- Mevcut objeleri önbelleğe al
-for _, v in ipairs(workspace:GetDescendants()) do
-    if v:IsA("BasePart") then table.insert(partCache, v)
-    elseif v:IsA("Humanoid") then table.insert(humCache, v) end
-end
-
 -- Yeni eklenenleri otomatik önbelleğe al
 workspace.DescendantAdded:Connect(function(v)
-    if v:IsA("BasePart") then table.insert(partCache, v)
-    elseif v:IsA("Humanoid") then table.insert(humCache, v) end
+    pcall(function()
+        if v:IsA("BasePart") then table.insert(partCache, v)
+        elseif v:IsA("Humanoid") then table.insert(humCache, v) end
+    end)
 end)
 
+-- Asenkron Önbellekleme ve Culling Motoru
 task.spawn(function()
+    -- 1. Çökmeyi Engelleyen Asenkron Harita Taraması
+    local count = 0
+    for _, v in ipairs(workspace:GetDescendants()) do
+        pcall(function()
+            if v:IsA("BasePart") then table.insert(partCache, v)
+            elseif v:IsA("Humanoid") then table.insert(humCache, v) end
+        end)
+        count = count + 1
+        if count % 500 == 0 then task.wait() end -- Kritik: Her 500 objede bir motoru rahatlatır, çökmesini (freeze) %100 engeller.
+    end
+
+    -- 2. Ana Mesafe İşleme (Culling) Döngüsü
     while env.SYROX_RUNNING do
-        task.wait(1.5) -- Saniyede bir yerine 1.5 saniyede bir hafif tarama
+        task.wait(1.5)
         if not isDistCull and not isAnimLim then continue end
+        
         local lp = Players.LocalPlayer
         local char = lp.Character
         local root = char and char:FindFirstChild("HumanoidRootPart")
@@ -794,9 +804,12 @@ task.spawn(function()
         local pos = root.Position
         
         if isDistCull then
-            for i = 1, #partCache do
+            -- Döngüyü tersten kuruyoruz ki silinen objeleri tablodan güvenle atabilelim (Memory Leak önlemi)
+            for i = #partCache, 1, -1 do
                 local v = partCache[i]
-                if v and v.Parent then
+                if not v or not v.Parent then
+                    table.remove(partCache, i) -- Obje haritadan silinmişse RAM'den (tablodan) de sil
+                else
                     local dist = (v.Position - pos).Magnitude
                     if dist > 350 then v.LocalTransparencyModifier = 1
                     elseif dist > 150 then v.LocalTransparencyModifier = 0; v.Material = Enum.Material.SmoothPlastic; v.CastShadow = false
@@ -806,9 +819,11 @@ task.spawn(function()
         end
         
         if isAnimLim then
-            for i = 1, #humCache do
+            for i = #humCache, 1, -1 do
                 local v = humCache[i]
-                if v and v.Parent and v.Parent ~= char then
+                if not v or not v.Parent then
+                    table.remove(humCache, i)
+                elseif v.Parent ~= char then
                     local pRoot = v.Parent:FindFirstChild("HumanoidRootPart") or v.Parent:FindFirstChild("Torso")
                     if pRoot then
                         local dist = (pRoot.Position - pos).Magnitude
@@ -825,6 +840,7 @@ task.spawn(function()
         end
     end
 end)
+    
     
 table.insert(connections, btnCloseInfo.MouseButton1Click:Connect(function() TweenService:Create(infoOverlay, TweenInfo.new(0.3), {BackgroundTransparency = 1}):Play(); TweenService:Create(infoBody, TweenInfo.new(0.3), {TextTransparency = 1}):Play(); TweenService:Create(btnCloseInfo, TweenInfo.new(0.3), {BackgroundTransparency = 1, TextTransparency = 1}):Play(); task.delay(0.3, function() infoOverlay.Visible = false; contentContainer.Visible = true; isIntroPlaying = false end) end))
 
