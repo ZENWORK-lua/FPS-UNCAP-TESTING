@@ -1,5 +1,9 @@
---hyperfps script
+-- [[ HYPER|HUB - STABLE & EXPANDED (STANDALONE) ]]
+_G.HyperMainStart = true
 
+if game:GetService("CoreGui"):FindFirstChild("HyperOpeningUI") then
+    pcall(function() game:GetService("CoreGui").HyperOpeningUI:Destroy() end)
+end
 
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
@@ -51,7 +55,7 @@ if env.FPSCapUIConnections then
 end
 
 if targetGui:FindFirstChild("FPSCapUI") then 
-    targetGui.FPSCapUI:Destroy() 
+    pcall(function() targetGui.FPSCapUI:Destroy() end)
 end
 
 env.FPSCapUIConnections = {}
@@ -114,14 +118,6 @@ afkScreen.BackgroundColor3 = Color3.fromRGB(245, 245, 245)
 afkScreen.ZIndex = 999
 afkScreen.Visible = false
 afkScreen.Parent = screenGui
-local afkText = Instance.new("TextLabel")
-afkText.Size = UDim2.new(1, 0, 1, 0)
-afkText.BackgroundTransparency = 1
-afkText.Font = Enum.Font.GothamBold
-afkText.Text = "AFK optimization activated.\nClick anywhere to stop"
-afkText.TextColor3 = Color3.fromRGB(20, 20, 20)
-afkText.TextSize = 24
-afkText.Parent = afkScreen
 
 local fpsMonFrame = Instance.new("Frame")
 fpsMonFrame.Size = UDim2.new(0, 100, 0, 26)
