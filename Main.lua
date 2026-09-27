@@ -1,10 +1,6 @@
 -- [[ HYPER|HUB - STABLE & EXPANDED (STANDALONE) ]]
 _G.HyperMainStart = true
 
-if game:GetService("CoreGui"):FindFirstChild("HyperOpeningUI") then
-    pcall(function() game:GetService("CoreGui").HyperOpeningUI:Destroy() end)
-end
-
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
 local RunService = game:GetService("RunService")
