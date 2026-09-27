@@ -1,12 +1,5 @@
 --hyperfps script
 
-_G.HyperMainStart = false
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ZENWORK-lua/FPS-UNCAP/refs/heads/main/Assistant.lua"))()
-repeat task.wait() until _G.HyperMainStart == true
-_G.HyperMainStart = nil
-if game:GetService("CoreGui"):FindFirstChild("HyperOpeningUI") then
-    game:GetService("CoreGui").HyperOpeningUI:Destroy()
-end
 
 local UserInputService = game:GetService("UserInputService")
 local TweenService = game:GetService("TweenService")
